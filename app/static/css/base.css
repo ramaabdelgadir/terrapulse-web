@@ -1,9 +1,3 @@
-/* TerraPulse · "Oasis"
-   One dark, friendly palette for the whole site: a teal-slate base like water at dusk, palm green for actions
-   and confirmed results, spring water for links and information, date gold for highlights, terracotta for small
-   warm touches. The result panels use the same dark surfaces, so the site never flips to light. Kemet keeps his own colours.
-   Type: Space Grotesk (display, from the video's wordmark) · Readex Pro (interface, Latin + Arabic)
-         · JetBrains Mono (labels, coordinates, the "telemetry" voice). */
 :root {
   --night-0: #142328; --night-1: #1d2d33; --night-2: #263b42; --night-3: #2f4850; --night-4: #3a5660;
   --glass: rgba(29, 45, 51, .74); --glass-line: rgba(124, 198, 214, .24); --glass-line-2: rgba(124, 198, 214, .4);
@@ -42,7 +36,6 @@ img { max-width: 100%; }
 .skip:focus { top: 12px; }
 svg { flex: none; }
 
-/* ------------------------------------------------------------------ type */
 h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.02em; line-height: 1.1; margin: 0; }
 .eyebrow { font-family: var(--mono); font-size: 11.5px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase;
            color: var(--cyan); margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
@@ -54,7 +47,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.02
 .link:hover { text-decoration: underline; }
 .day .link { color: var(--blue); }
 
-/* ------------------------------------------------------------------ buttons */
 .btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 22px; border-radius: 999px; border: 1px solid transparent;
        font-weight: 500; font-size: 15px; text-decoration: none; line-height: 1; transition: transform .2s var(--ease), box-shadow .2s, background .2s, border-color .2s; }
 .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -81,7 +73,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.02
 .seg button.on { background: var(--star); color: var(--night-1); font-weight: 500; }
 .seg.small button { padding: 4px 11px; font-size: 12.5px; }
 
-/* ------------------------------------------------------------------ verdict badges (from the video's badges) */
 .badge { --bc: var(--no); display: inline-flex; align-items: center; gap: 9px; padding: 5px 14px 5px 5px; border-radius: 999px;
          border: 1.5px solid var(--bc); background: var(--day-1); color: var(--ink); font-size: 13.5px; font-weight: 500; line-height: 1.2; white-space: nowrap; }
 .badge svg { width: 22px; height: 22px; border-radius: 50%; background: var(--bc); fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; }
@@ -91,7 +82,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.02
 .badge.b-insufficient { --bc: var(--no); }
 .badge.b-insufficient svg circle, .badge.b-tiny svg circle { fill: #fff; stroke: none; }
 
-/* ------------------------------------------------------------------ loaders: the heartbeat line */
 .pulse-line { width: 120px; height: 24px; fill: none; stroke: url(#mk-g); stroke: var(--magenta); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;
               stroke-dasharray: 160; stroke-dashoffset: 160; animation: ecg 1.4s linear infinite; }
 @keyframes ecg { to { stroke-dashoffset: -160; } }
@@ -103,7 +93,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.02
 @keyframes blink { 50% { opacity: .35; } }
 .loading-row { display: flex; align-items: center; gap: 12px; color: var(--dim); padding: 30px 0; list-style: none; }
 
-/* ------------------------------------------------------------------ sidebar */
 .sidebar { position: fixed; z-index: 40; inset: 0 auto 0 0; width: var(--sb); display: flex; flex-direction: column;
            background: radial-gradient(circle at 20% 8%, rgba(232, 194, 110, .14), transparent 40%),
                        radial-gradient(1px 1px at 30px 120px, rgba(255,255,255,.5), transparent 2px),
@@ -126,7 +115,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.02
 .sidebar a[data-nav]:hover { background: rgba(255, 255, 255, .05); color: var(--star); }
 .sidebar a[aria-current="page"] { color: var(--star); background: linear-gradient(90deg, rgba(232, 194, 110, .2), rgba(124, 198, 214, .04) 70%, transparent); }
 .sidebar a[aria-current="page"] svg { stroke: var(--cyan); filter: drop-shadow(0 0 6px rgba(124, 198, 214, .6)); }
-/* active marker: a short orbit arc with a satellite on it */
 .sidebar a[aria-current="page"]::before { content: ""; position: absolute; left: -12px; top: 6px; bottom: 6px; width: 14px;
   border-radius: 0 40px 40px 0; border: 2.5px solid transparent; border-left: 0;
   background: var(--orbit) border-box; -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
@@ -152,7 +140,6 @@ body.sb-collapsed .sb-foot { display: flex; justify-content: center; }
 .topbar { display: none; }
 .scrim { position: fixed; inset: 0; z-index: 39; background: rgba(8, 18, 22, .6); backdrop-filter: blur(2px); }
 
-/* ------------------------------------------------------------------ pages */
 main { margin-left: var(--sb); min-height: 100vh; transition: margin-left .28s var(--ease); outline: none; }
 .page { display: none; }
 .page.active { display: block; animation: pagein .45s var(--ease); }
@@ -168,14 +155,12 @@ body[data-route="analyses"], body[data-route="learn"], body[data-route="settings
   border-bottom: 1.5px solid; border-image: var(--orbit) 1; opacity: .0; }
 .page-head.day::before { content: ""; position: absolute; inset: auto 0 0 0; height: 2px; background: var(--orbit); opacity: .55; }
 
-/* tour spotlight: a separate ring drawn over the target, so the target's own layout is never touched */
 .tour-ring { position: fixed; z-index: 45; pointer-events: none; border-radius: 14px;
              box-shadow: 0 0 0 3px var(--magenta), 0 0 0 9px rgba(127, 191, 134, .2), 0 0 40px rgba(127, 191, 134, .4);
              transition: top .25s var(--ease), left .25s var(--ease), width .25s var(--ease), height .25s var(--ease); }
 .tour-ring[hidden] { display: none; }
 body.calm .tour-ring { transition: none; }
 
-/* ------------------------------------------------------------------ Kemet */
 .sami { display: block; width: 100%; height: auto; overflow: visible; }
 .sami-float { animation: float 5s ease-in-out infinite; transform-origin: center; }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
@@ -191,7 +176,6 @@ body.calm .tour-ring { transition: none; }
 body.calm *, body.calm *::before, body.calm *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; }
 body.calm .sami-sat { display: none; }
 
-/* ------------------------------------------------------------------ the guide */
 .guide { position: fixed; z-index: 50; right: 22px; bottom: 22px; display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
          transition: right .3s var(--ease), bottom .3s var(--ease); pointer-events: none; }
 .guide > * { pointer-events: auto; }
@@ -227,7 +211,6 @@ body.calm .sami-sat { display: none; }
 .g-nav button { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--rule); background: var(--day-1); color: var(--ink); font-size: 18px; line-height: 1; }
 .guide-bubble.peek { border-radius: 20px 20px 6px 20px; }
 
-/* ------------------------------------------------------------------ chat (shared) */
 .chat { display: flex; flex-direction: column; min-height: 0; }
 .msgs { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
 .msg { display: flex; gap: 10px; align-items: flex-end; max-width: 92%; }
@@ -257,12 +240,10 @@ body.calm .sami-sat { display: none; }
 .chat-form .send svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .chat-hint { color: var(--ink-3); font-size: 13.5px; margin: 0; }
 
-/* ------------------------------------------------------------------ toast */
 .toast { position: fixed; z-index: 70; left: 50%; bottom: 28px; transform: translate(-50%, 20px); opacity: 0; background: var(--night-3); color: var(--star);
          border: 1px solid var(--glass-line-2); padding: 10px 18px; border-radius: 999px; font-size: 14px; transition: opacity .25s, transform .25s var(--ease); }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }
 
-/* ------------------------------------------------------------------ mobile shell */
 @media (max-width: 860px) {
   :root { --top: 58px; }
   body, body.sb-collapsed { --sb: 0px; }
@@ -287,15 +268,12 @@ body.calm .sami-sat { display: none; }
   *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; }
 }
 
-/* performance: decorations that never stop animating repaint the page every frame; keep them still */
 .guide-dock::before { animation: none; }
 .guide-face * { animation: none !important; }
 
-/* no visible scrollbars anywhere; everything still scrolls with the wheel, trackpad, touch or keyboard */
 * { scrollbar-width: none; -ms-overflow-style: none; }
 *::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
-/* chat: suggested questions open as a pop-up above the text box (the "Ideas" button), never covering the answer */
 .chat-bar { position: relative; flex-shrink: 0; }
 .chat-bar .chat-suggest { position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); z-index: 6; margin: 0;
   display: flex; flex-wrap: wrap !important; gap: 8px; padding: 12px; border-radius: 16px; max-height: min(46vh, 320px); overflow-y: auto !important;

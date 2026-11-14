@@ -1,28 +1,3 @@
-"""
-All trend statistics for TerraPulse, in one place.
-
-    analyze_series(values, times, freq) -> dict with everything we report
-
-Methods (with the reason for each):
-  * Seasonal Mann-Kendall, Hirsch & Slack (1984) correction
-        Compares Jan with Jan, Feb with Feb ... so the seasonal cycle can't
-        look like a trend, and corrects for months of the same year being
-        related. Written here because pymannkendall's version drops every
-        year containing a single missing month.
-  * Seasonal Sen's slope (pymannkendall) + 95% CI (Gilbert 1987)
-        "How much per year", robust to outliers.
-  * Hamed & Rao (1998) modified MK (pymannkendall) for yearly data
-        Corrects for year-to-year autocorrelation.
-  * Trend + jump model comparison (BIC, autocorrelation-adjusted)
-        Finds a sudden jump (e.g. a dam, a new sensor, a policy) that a
-        straight line would hide. (Pettitt is kept below for reference; it
-        failed our validation when a trend and a jump occur together.)
-  * Detectability (Weatherhead et al. 1998)
-        "How many years would we need to see a trend this size?" and
-        "What is the smallest trend this record could have detected?"
-  * Benjamini-Hochberg false discovery rate (fdr_bh)
-        When testing hundreds of pixels, ~5% look "significant" by luck.
-"""
 import numpy as np
 import pandas as pd
 import pymannkendall as mk
@@ -31,9 +6,7 @@ from scipy.stats import norm
 Z95 = norm.ppf(0.975)
 
 
-# =============================================================== helpers
 def _to_matrix(values, times, period):
-    """Monthly (or quarterly) series -> matrix [years x seasons] with NaN gaps."""
     t = pd.DatetimeIndex(times)
     season = (t.month - 1) // (12 // period)
     year = t.year - t.year.min()
@@ -43,7 +16,6 @@ def _to_matrix(values, times, period):
 
 
 def _ranks_with_missing(col):
-    """Hirsch-Slack ranks: missing values get the middle rank (n_g + 1) / 2."""
     ok = ~np.isnan(col)
     n_g = ok.sum()
     R = np.full(col.shape, (n_g + 1) / 2.0)
@@ -53,8 +25,7 @@ def _ranks_with_missing(col):
 
 
 def _sgn_pairs(col):
-    """sign(x_j - x_i) for all i<j; 0 where either value is missing."""
-    d = np.sign(col[None, :] - col[:, None])          # [i, j] = sign(x_j - x_i)
+    d = np.sign(col[None, :] - col[:, None])
     return np.nan_to_num(np.triu(d, 1))
 
 
@@ -66,10 +37,7 @@ def _var_s_ties(col):
     return (n * (n - 1) * (2 * n + 5) - ties) / 18.0
 
 
-# =============================================================== Mann-Kendall
 def seasonal_mk_hirsch_slack(X):
-    """Seasonal MK with covariance between seasons (Hirsch & Slack 1984).
-    X: [years x seasons] with NaN for gaps. Returns S, var_S, z, p."""
     n, p = X.shape
     sg = [_sgn_pairs(X[:, g]) for g in range(p)]
     S = sum(m.sum() for m in sg)
@@ -82,12 +50,11 @@ def seasonal_mk_hirsch_slack(X):
             (Rg, ng), (Rh, nh) = ranks[g], ranks[h]
             cov[g, h] = cov[h, g] = (K + 4 * np.sum(Rg * Rh) - n * (ng + 1) * (nh + 1)) / 3.0
     var_S = max(cov.sum(), 1e-12)
-    z = (S - np.sign(S)) / np.sqrt(var_S)              # continuity correction
+    z = (S - np.sign(S)) / np.sqrt(var_S)
     return S, var_S, z, 2 * (1 - norm.cdf(abs(z)))
 
 
 def seasonal_sen_ci(X, var_S):
-    """Seasonal Sen's slope (per year) and its 95% CI (Gilbert 1987)."""
     slopes = []
     for g in range(X.shape[1]):
         col = X[:, g]
@@ -113,11 +80,7 @@ def sen_ci(y, var_S):
     return float(np.median(s)), float(s[lo]), float(s[hi])
 
 
-# =============================================================== change point
 def pettitt(resid, times):
-    """Pettitt test for one abrupt shift, on detrended anomalies.
-    Autocorrelation makes Pettitt over-confident, so we inflate its variance
-    by (1+r1)/(1-r1)."""
     ok = ~np.isnan(resid)
     x, t = resid[ok], pd.DatetimeIndex(times)[ok]
     n = len(x)
@@ -127,8 +90,6 @@ def pettitt(resid, times):
     U = np.array([sgn[:k + 1, k + 1:].sum() for k in range(n - 1)])
     k = int(np.argmax(np.abs(U)))
     K = abs(U[k])
-    # Measure autocorrelation AFTER removing the candidate jump: otherwise the
-    # jump itself looks like extreme autocorrelation and hides itself.
     seg = x.copy()
     seg[:k + 1] -= np.median(x[:k + 1])
     seg[k + 1:] -= np.median(x[k + 1:])
@@ -140,22 +101,12 @@ def pettitt(resid, times):
 
 
 def step_change(anom, times, min_seg_years=2, bic_threshold=10.0):
-    """Trend + sudden-jump detection by model comparison.
-
-    For every possible jump date (keeping >= 2 years on each side) fit
-        model 0:  anomaly = a + b*t                (smooth trend only)
-        model 1:  anomaly = a + b*t + c*[t >= k]   (trend + jump of size c at k)
-    Keep the best k. Accept the jump only if model 1 wins by
-        dBIC = n_eff * ln(RSS0 / RSS1) - 2 * ln(n_eff)  >  10   ("very strong")
-    n_eff shrinks n for autocorrelation, so slow wiggles are not mistaken for
-    jumps. Unlike Pettitt-on-detrended-data, the trend can't swallow the jump.
-    """
     t = pd.DatetimeIndex(times)
     ok = ~np.isnan(anom)
     y = anom[ok]
     tt = ((t - t[0]).days.values / 365.25)[ok]
     n = len(y)
-    m = int(min_seg_years * 12 * n / len(anom))          # min points per side
+    m = int(min_seg_years * 12 * n / len(anom))
     if n < 3 * m or n < 30:
         return None
     X0 = np.column_stack([np.ones(n), tt])
@@ -178,26 +129,21 @@ def step_change(anom, times, min_seg_years=2, bic_threshold=10.0):
             "delta_bic": float(dbic), "significant": bool(dbic > bic_threshold),
             "slope_excluding_jump": float(coef[1]),
             "years_after": round(years_after, 1),
-            # a jump in the last few years may be one unusual episode (e.g. a drought), not a lasting shift
             "recent": bool(years_after < 4)}
 
 
-# =============================================================== main entry
 def analyze_series(values, times, freq="monthly", percent_change=False, alpha=0.05):
-    """Everything we report for ONE time series (a pixel or a region mean)."""
     values = np.asarray(values, dtype=float)
     t = pd.DatetimeIndex(times)
     n_valid = int(np.sum(~np.isnan(values)))
     years = (t[-1] - t[0]).days / 365.25 + (1 / {"monthly": 12, "quarterly": 4, "yearly": 1}[freq])
     period = {"monthly": 12, "quarterly": 4}.get(freq)
 
-    # ---- trend test + slope (per YEAR in every case)
     if period:
         X = _to_matrix(values, t, period)
         S, var_S, z, p = seasonal_mk_hirsch_slack(X)
         slope, lo, hi = seasonal_sen_ci(X, var_S)
         method = f"Seasonal Mann-Kendall (Hirsch-Slack), period={period}"
-        # anomalies = value minus that calendar month's median
         clim = np.nanmedian(X, axis=0)
         season = (t.month - 1) // (12 // period)
         anom = values - clim[season]
@@ -208,17 +154,12 @@ def analyze_series(values, times, freq="monthly", percent_change=False, alpha=0.
         method = "Mann-Kendall, Hamed-Rao autocorrelation correction"
         anom = values - np.nanmedian(values)
 
-    # ---- detrended residual noise -> size of normal ups and downs
     yrs_from_start = (t - t[0]).days.values / 365.25
     resid = anom - slope * (yrs_from_start - np.nanmean(yrs_from_start[~np.isnan(anom)]))
     resid = resid - np.nanmean(resid)
 
-    # ---- change point (sudden jump) on the detrended anomalies
     cp = step_change(anom, t)
     if cp and cp["significant"]:
-        # A real jump: take it out of the noise estimate, otherwise the jump
-        # would look like huge noise. (cp also carries the slope excluding the jump,
-        # so one sudden drop is not sold as a steady decline.)
         after = t >= pd.Timestamp(cp["date"] + "-01")
         resid = anom - cp["slope_excluding_jump"] * yrs_from_start - np.where(after, cp["shift"], 0.0)
         resid = resid - np.nanmean(resid)
@@ -229,15 +170,11 @@ def analyze_series(values, times, freq="monthly", percent_change=False, alpha=0.
     steps_per_year = {"monthly": 12, "quarterly": 4, "yearly": 1}[freq]
     sigma_annual = float(np.nanstd(pd.Series(resid, index=t).groupby(t.year).mean()))
 
-    # ---- detectability (Weatherhead et al. 1998), converted to per-year noise
-    sig_eff = sigma * np.sqrt(12 / steps_per_year)     # noise expressed as monthly noise
+    sig_eff = sigma * np.sqrt(12 / steps_per_year)
     infl = np.sqrt((1 + phi) / (1 - phi))
     years_to_detect = float((3.3 * sig_eff / abs(slope) * infl) ** (2 / 3)) if slope != 0 else np.inf
     min_detectable = float(3.3 * sig_eff * infl / years**1.5)
 
-    # ---- classic check: linear regression + t-test (the method the challenge names)
-    # on de-seasonalised anomalies; the naive p-value assumes independent months,
-    # the adjusted one uses an effective sample size (Santer et al. 2000).
     ols = None
     ok = ~np.isnan(anom)
     if ok.sum() > 10:
@@ -256,7 +193,6 @@ def analyze_series(values, times, freq="monthly", percent_change=False, alpha=0.
 
     total = slope * years
     if cp and cp["significant"]:
-        # with a real jump, the honest total = steady trend over the record + the jump
         total = cp["slope_excluding_jump"] * years + cp["shift"]
     first = values[yrs_from_start < 5]
     base = float(np.nanmean(first)) if np.any(~np.isnan(first)) else np.nan
@@ -279,7 +215,6 @@ def analyze_series(values, times, freq="monthly", percent_change=False, alpha=0.
 
 
 def fdr_bh(pvals):
-    """Benjamini-Hochberg q-values. NaN p-values stay NaN."""
     p = np.asarray(pvals, dtype=float)
     q = np.full_like(p, np.nan)
     ok = ~np.isnan(p)
@@ -297,7 +232,6 @@ def fdr_bh(pvals):
 
 
 def verdict(res, q, alpha=0.05, status="ok", min_meaningful=None):
-    """Turn numbers into one honest label + reason (used by the map, site and AI)."""
     if status != "ok":
         return "insufficient_data", f"Not analysed: {status.replace('_', ' ')}."
     total = res.get("total_change")
@@ -309,10 +243,6 @@ def verdict(res, q, alpha=0.05, status="ok", min_meaningful=None):
         d = "increase" if res["slope_per_year"] > 0 else "decrease"
         qs = "q<0.001" if q < 0.001 else f"q={q:.3f}"
         return f"significant_{d}", f"Significant {d} ({qs} after correcting for multiple tests)."
-    # Not significant. Two honest flavours:
-    #  - possible trend: p < alpha on its own, but not after the multiple-testing
-    #    correction -> "watch this", NOT a finding.
-    #  - no significant trend: tell the reader the smallest trend we COULD have caught.
     if res["p"] < alpha:
         d = "increase" if res["slope_per_year"] > 0 else "decrease"
         return f"possible_{d}", (f"Possible {d}: significant on its own (p={res['p']:.3f}) but not after "

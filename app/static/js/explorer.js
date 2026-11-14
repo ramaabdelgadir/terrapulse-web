@@ -1,14 +1,11 @@
-/* Earth Explorer: map, variable picker, regions, cells, draw-a-box, selection.
-   Map logic and API calls are carried over from the original app.js. */
 "use strict";
 
 const Explorer = (() => {
   let map, imagery, labels, streets, cellLayer, regionLayer, drawnLayer, markLayer, legend = null, drawer = null;
   let cellCanvas = null;
-  const SEL_COLOR = "#5cf2ff";   // selected place / drawn box: bright aqua with a dark edge, visible on every map colour   // one canvas for all grid cells: far lighter than thousands of SVG shapes
+  const SEL_COLOR = "#5cf2ff";
   let ready = false, pixelsCache = {};
 
-  /* ---------------------------------------------------------------- map */
   function initMap() {
     map = L.map("map", { zoomControl: false, minZoom: 3, worldCopyJump: true, attributionControl: true }).setView([30.5, 31.0], 8);
     L.control.zoom({ position: "topright" }).addTo(map);
@@ -44,7 +41,6 @@ const Explorer = (() => {
   }
   const varSpec = () => varById(state.v);
 
-  /* ---------------------------------------------------------------- cells (unchanged styling logic) */
   function cellStyle(c, vs, slopeMax) {
     const sig = c.verdict.startsWith("significant_");
     const poss = c.verdict.startsWith("possible_");
@@ -121,7 +117,7 @@ const Explorer = (() => {
     const vs = varSpec();
     for (const r of state.meta.regions) {
       if (!(vs.regions_avail || []).includes(r.id)) continue;
-      if (vs.gridded && r.id === "nile_delta") continue;   // the whole box = the data area
+      if (vs.gridded && r.id === "nile_delta") continue;
       const [la0, la1, lo0, lo1] = r.box;
       const on = state.sel && state.sel.kind === "region" && state.sel.id === r.id;
       const rect = L.rectangle([[la0, lo0], [la1, lo1]],
@@ -144,16 +140,14 @@ const Explorer = (() => {
     $$("#regions-list button").forEach((b) => b.addEventListener("click", () => { closePops(); select({ kind: "region", id: b.dataset.r }); }));
   }
 
-  /* ---------------------------------------------------------------- draw a box */
   function startDrawing() {
     if (!varSpec().gridded) { toast("Drawing works for map measurements (vegetation and land temperature)."); return; }
     if (drawer) return stopDrawing();
-    // on a phone the result sheet covers the map: slide it down so there is room to draw
     if (matchMedia("(max-width: 860px)").matches && ["open", "expanded"].includes(Analysis.sheetState())) {
       if (!$("#ask-drawer").hidden) Chat.closeDrawer();
       Analysis.sheetState("peek"); invalidate();
     }
-    $("#map").classList.add("drawing");        // cells stop catching the mouse while a box is drawn
+    $("#map").classList.add("drawing");
     drawer = new L.Draw.Rectangle(map, { shapeOptions: { color: SEL_COLOR, weight: 3.5, fillOpacity: .1, className: "sel-glow" }, showArea: false });
     drawer.enable();
     $("#draw").classList.add("active"); $("#draw").setAttribute("aria-pressed", "true");
@@ -161,7 +155,7 @@ const Explorer = (() => {
     Bus.emit("drawing");
   }
   function stopDrawing() {
-    if (drawer) { try { drawer.disable(); } catch (e) { /* already off */ } }
+    if (drawer) { try { drawer.disable(); } catch (e) {} }
     drawer = null;
     $("#map").classList.remove("drawing");
     $("#draw").classList.remove("active"); $("#draw").setAttribute("aria-pressed", "false");
@@ -173,7 +167,6 @@ const Explorer = (() => {
     return vs.gridded ? "Click a dashed region outline or a cell, or draw your own box." : "Click a dashed region outline to see its trend.";
   };
 
-  /* ---------------------------------------------------------------- selection */
   async function fetchResult(sel, v = state.v) {
     if (sel.kind === "region") return api(`/api/region/${v}/${sel.id}`);
     if (sel.kind === "box") return api("/api/analyze_box", { var: v, box: sel.box });
@@ -207,7 +200,6 @@ const Explorer = (() => {
     if (state.cmpKey) loadCompare(state.cmpKey);
   }
 
-  /* ---------------------------------------------------------------- region & compare selects (unchanged logic) */
   function syncRegionSelect() {
     const s = $("#region-select");
     const vs = varSpec();
@@ -217,7 +209,6 @@ const Explorer = (() => {
     if (state.sel.kind === "pixel") opts.push(["pixel", "Selected grid cell"]);
     s.innerHTML = opts.map(([v, l]) => `<option value="${v}">${esc(l)}</option>`).join("");
     s.value = state.sel.kind === "region" ? `region:${state.sel.id}` : state.sel.kind;
-    // the Place bar is no longer shown (places are picked on the map or from Regions); the hidden select still feeds "Compare with"
 
     const c = $("#compare-select");
     const cur = s.value;
@@ -240,7 +231,6 @@ const Explorer = (() => {
     Analysis.drawChart();
   }
 
-  /* ---------------------------------------------------------------- variable picker */
   function buildPicker() {
     $("#vp-list").innerHTML = state.meta.variables.map((v) => `
       <li><button data-v="${v.id}" aria-pressed="${v.id === state.v}">
@@ -260,7 +250,7 @@ const Explorer = (() => {
     Bus.emit("picker");
   }
   function closePicker(force) {
-    if (!state.v && force !== true) return;     // the first time, a choice is needed
+    if (!state.v && force !== true) return;
     $("#var-picker").hidden = true; $("#var-pill").setAttribute("aria-expanded", "false");
   }
   function updatePill() {
@@ -300,7 +290,6 @@ const Explorer = (() => {
     if (state.v) drawCells();
   }
 
-  /* ---------------------------------------------------------------- popovers */
   function togglePop(btn, pop) {
     const open = pop.hidden;
     closePops();
@@ -312,7 +301,6 @@ const Explorer = (() => {
     });
   }
 
-  /* ---------------------------------------------------------------- wiring */
   function wire() {
     $("#draw").addEventListener("click", startDrawing);
     $("#mode-verdict").addEventListener("click", () => setMode("verdict"));
@@ -345,14 +333,12 @@ const Explorer = (() => {
     });
   }
 
-  /* called when the explorer page is shown */
   let opening = false;
   function show() {
     if (!ready) { initMap(); wire(); setMode(state.mode); }
     setTimeout(() => map.invalidateSize(), 60);
     if (!state.v && !opening) openPicker();
   }
-  /* open a specific investigation (used by case files, logbook, landing) */
   async function open(v, sel, cmp) {
     opening = true;
     if (!ready) { initMap(); wire(); setMode(state.mode); }

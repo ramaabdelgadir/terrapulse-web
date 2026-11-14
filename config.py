@@ -1,38 +1,28 @@
-"""
-TerraPulse configuration.
-
-On challenge day this is the ONLY file we should need to edit: point each
-variable at the real file and fill in its fill value / scale / units from
-the dataset's documentation (or from its NetCDF/HDF attributes).
-"""
 import os
 from pathlib import Path
 
 ROOT = Path(__file__).parent
 
-# ------------------------------------------------------------ data mode
-DUMMY_DATA = os.getenv("TERRAPULSE_DATA", "real") != "real"   # TERRAPULSE_DATA=dummy -> simulated test data
+DUMMY_DATA = os.getenv("TERRAPULSE_DATA", "real") != "real"
 
 RAW = ROOT / "data" / ("raw" if DUMMY_DATA else "raw_real")
 CLEAN = ROOT / "data" / "clean"
 RESULTS = ROOT / "data" / "results"
 
-# ------------------------------------------------------------ general rules
-TARGET_FREQ = "auto"          # "monthly" | "quarterly" | "yearly" | "auto"
-AUTO_LIMITS = {               # "auto": pick the finest frequency under these sizes
-    "monthly": 20_000_000,    #   time steps x pixels
-    "quarterly": 60_000_000,  #   above this -> yearly
+TARGET_FREQ = "auto"
+AUTO_LIMITS = {
+    "monthly": 20_000_000,
+    "quarterly": 60_000_000,
 }
-MAX_MISSING_FRAC = 0.30       # drop a pixel if >30% of its time steps are missing
-MIN_YEARS = 10                # shorter records -> "insufficient data", not analysed
-MIN_VALID_IN_PERIOD = {       # how many valid months a quarter/year needs
-    "quarterly": 2,           #   2 of 3 months
-    "yearly": 10,             #   10 of 12 months
+MAX_MISSING_FRAC = 0.30
+MIN_YEARS = 10
+MIN_VALID_IN_PERIOD = {
+    "quarterly": 2,
+    "yearly": 10,
 }
 
-ALPHA = 0.05                  # significance level (after false-discovery-rate correction)
+ALPHA = 0.05
 
-# Regions to summarise (lat_min, lat_max, lon_min, lon_max).
 DUMMY_REGIONS = {
     "nile_delta":    dict(box=(29.5, 31.5, 29.5, 32.5), label="Whole Nile Delta box"),
     "new_delta":     dict(box=(30.0, 30.75, 29.5, 30.25), label="New Delta (west, desert reclamation)"),
@@ -48,21 +38,14 @@ REAL_REGIONS = {
     "alexandria":    dict(box=(31.13, 31.23, 29.90, 30.00), label="Alexandria (around the airport weather station)"),
 }
 
-# ------------------------------------------------------------ unit converters
 CONVERT = {
     None: lambda x: x,
     "K_to_C": lambda x: x - 273.15,
     "mm_hr_to_mm_day": lambda x: x * 24.0,
-    "kg_m2_s_to_mm_day": lambda x: x * 86400.0,      # GLDAS evapotranspiration
-    "to_1e15": lambda x: x / 1e15,                   # NO2 column: molecules/cm² -> 10^15 molecules/cm²
+    "kg_m2_s_to_mm_day": lambda x: x * 86400.0,
+    "to_1e15": lambda x: x / 1e15,
 }
 
-# ------------------------------------------------------------ variables
-# kind: "grid" = NetCDF (time, lat, lon) | "point_csv" = NASA POWER CSV
-# fill:   raw value meaning "no data"
-# scale:  multiply raw integers by this to get real units (1 if already real)
-# valid:  physically possible range AFTER conversion; outside -> removed
-# outlier_z: robust z-score threshold for spikes (None = keep extremes, e.g. rain)
 DUMMY_VARIABLES = {
     "ndvi": dict(
         percent_change=True,
@@ -102,28 +85,25 @@ DUMMY_VARIABLES = {
 }
 
 
-# ------------------------------------------------------------ REAL data (challenge day)
-# AppEEARS area downloads (NetCDF-4, geographic) and Giovanni area-averaged series.
-# File names use wildcards because AppEEARS adds an id (e.g. ..._aid0001.nc).
 REAL_VARIABLES = {
     "ndvi": dict(
         kind="grid", file="MOD13A3*.nc", var="_1_km_monthly_NDVI",
         fill=-3000, scale=0.0001, convert=None, units="NDVI (unitless)", percent_change=True,
-        valid=(-0.2, 1.0), outlier_z=6.0, coarsen=6,          # 1 km -> 0.05° (~5 km)
-        min_meaningful=0.02,     # changes below MODIS NDVI uncertainty (~0.02) are "real but tiny"
-        qc=dict(var="_1_km_monthly_pixel_reliability", keep=[0, 1]),   # 0 good, 1 marginal
+        valid=(-0.2, 1.0), outlier_z=6.0, coarsen=6,
+        min_meaningful=0.02,
+        qc=dict(var="_1_km_monthly_pixel_reliability", keep=[0, 1]),
         label="Vegetation greenness (NDVI)", source="NASA MODIS Terra MOD13A3 v061 via AppEEARS",
     ),
     "lst": dict(
         kind="grid", file="MOD11A2*.nc", var="LST_Day_1km",
         fill=0, scale=0.02, convert="K_to_C", units="°C", percent_change=False,
         valid=(-10.0, 75.0), outlier_z=6.0, coarsen=6,
-        min_meaningful=0.5,      # °C over the record
+        min_meaningful=0.5,
         end="2021-12",
         end_reason=("Terra stopped orbit corrections in Feb 2020 and now passes earlier in the morning, "
                     "so daytime LST reads cooler every year (about -0.4 °C in 2022 growing to -6 °C in 2026 "
                     "over the Delta). Data after 2021 would show a fake cooling trend, so it is cut."),
-        qc=dict(var="QC_Day", bits=(0, 1), keep=[0, 1]),        # mandatory QA: produced
+        qc=dict(var="QC_Day", bits=(0, 1), keep=[0, 1]),
         label="Daytime land surface temperature", source="NASA MODIS Terra MOD11A2 v061 via AppEEARS",
     ),
     "precip": dict(
@@ -138,13 +118,13 @@ REAL_VARIABLES = {
         kind="region_series", files={"greater_cairo": "giovanni_no2_greater_cairo.csv",
                                      "nile_delta": "giovanni_no2_nile_delta.csv"},
         fill=-9999, scale=1.0, convert=None, units="10¹⁵ molecules/cm²", percent_change=True,
-        valid=(-5.0, 100.0), outlier_z=6.0, min_obs=10,          # a month needs >= 10 valid days
+        valid=(-5.0, 100.0), outlier_z=6.0, min_obs=10,
         label="Nitrogen dioxide (air pollution)", source="NASA Aura OMI OMNO2d v004 via Giovanni",
     ),
     "station_temp": dict(
         kind="region_series", files={"alexandria": "ghcn_alexandria_temp.csv"},
         fill=-9999, scale=1.0, convert=None, units="°C", percent_change=False,
-        valid=(-10.0, 50.0), outlier_z=6.0, min_obs=20,          # a month needs >= 20 days
+        valid=(-10.0, 50.0), outlier_z=6.0, min_obs=20,
         label="Air temperature at a weather station (ground truth)",
         source="NOAA GHCN-Daily, Alexandria International (EGM00062318)",
     ),

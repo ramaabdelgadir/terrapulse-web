@@ -1,10 +1,3 @@
-"""
-TerraPulse local web server.
-
-Run from the project folder:
-    uvicorn app.server:app --reload --port 8000
-then open http://localhost:8000
-"""
 from pathlib import Path
 from typing import Optional
 
@@ -43,7 +36,7 @@ def region(var: str, region: str):
 
 class Box(BaseModel):
     var: str
-    box: list[float]          # lat_min, lat_max, lon_min, lon_max
+    box: list[float]
 
 
 @app.post("/api/analyze_box")

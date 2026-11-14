@@ -1,7 +1,3 @@
-/* TerraPulse front end — shared core.
-   API helpers, formatting, plain-language verdict wording (unchanged from the
-   original app), preferences, the analysis logbook and a tiny event bus.
-   Nothing here computes statistics: every number comes from the API. */
 "use strict";
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -10,24 +6,22 @@ const api = async (url, body) => {
   const r = await fetch(url, body ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) } : {});
   if (!r.ok) {
     let msg = r.statusText;
-    try { msg = (await r.json()).detail || msg; } catch (e) { /* not JSON */ }
+    try { msg = (await r.json()).detail || msg; } catch (e) {}
     throw new Error(msg);
   }
   return r.json();
 };
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-/* ------------------------------------------------------------------ event bus */
 const Bus = {
   h: {},
   on(ev, fn) { (this.h[ev] = this.h[ev] || []).push(fn); },
   emit(ev, data) { (this.h[ev] || []).forEach((fn) => { try { fn(data); } catch (e) { console.error(e); } }); },
 };
 
-/* ------------------------------------------------------------------ storage (never throws) */
 const Store = {
   get(k, d) { try { const v = localStorage.getItem("tp." + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem("tp." + k, JSON.stringify(v)); } catch (e) { /* private mode */ } },
+  set(k, v) { try { localStorage.setItem("tp." + k, JSON.stringify(v)); } catch (e) {} },
 };
 
 const PREF_DEFAULTS = { guide: true, nudges: true, mapMode: "verdict", base: "imagery", lang: "en",
@@ -39,11 +33,9 @@ const Prefs = {
 };
 if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches && Store.get("prefs", null) == null) Prefs.v.reduceMotion = true;
 
-/* ------------------------------------------------------------------ app state (shared by all pages) */
 const state = { meta: null, v: null, mode: Prefs.get("mapMode"), sel: null, result: null, cmpKey: "", cmp: null,
                 lang: Prefs.get("lang"), history: [], box: null, loading: false };
 
-/* ------------------------------------------------------------------ formatting (unchanged) */
 const MINUS = "−";
 function fmt(x, sig = 2, sign = true) {
   if (x === null || x === undefined || !isFinite(x)) return "–";
@@ -70,7 +62,6 @@ const C = { ink: "#eef3ec", ink2: "#c9d8d4", muted: "#a3bab7", rule: "#3c565e", 
             nile: "#1A78A0", ochre: "#B5762A", neutral: "#E9ECEA", tiny: "#8E9893",
             yes: "#0a9a7a", maybe: "#c77a00", no: "#7d9896" };
 
-/* ------------------------------------------------------------------ plain-language wording (unchanged logic) */
 const PHRASE = {
   ndvi:        { inc: "{P} {be} getting greener", dec: "{P} {be} losing its green", noun: "vegetation" },
   lst:         { inc: "The land surface in {p} {be} warming", dec: "The land surface in {p} {be} cooling", noun: "surface temperature" },
@@ -102,9 +93,6 @@ function headline(r, sel) {
   return `Not enough data to judge ${p}.`;
 }
 
-/* Verdict family, used for badges and colours.
-   confirmed: significant after correction · tiny: significant but below what matters
-   possible:  suggestive, not confirmed · none: no significant trend · insufficient: too little data */
 function verdictFamily(v) {
   if (!v) return "insufficient";
   if (v === "significant_but_small") return "tiny";
@@ -134,7 +122,6 @@ function evidenceWords(r) {
   return "Not enough data";
 }
 
-/* ------------------------------------------------------------------ variable glyphs (custom, one stroke family) */
 const GLYPH = {
   ndvi: '<path d="M12 20c0-6 0-9 6-14-7 0-11 3-11 8 0 2 1 4 5 6z"/><path d="M12 20c-1-3-3-6-6-8"/>',
   lst: '<circle cx="12" cy="9" r="3.4"/><path d="M12 2.8v1.6M12 13.6v1.2M5.8 9H4.2M19.8 9h-1.6M7.6 4.6l1.1 1.1M15.3 4.6l-1.1 1.1"/><path d="M3.5 20c2-1.6 3.5-1.6 5.5 0s3.5 1.6 5.5 0 3.5-1.6 5.5 0"/>',
@@ -152,7 +139,6 @@ const varShort = (v) => SHORT_LABEL[v.id] || v.label;
 const varById = (id) => state.meta && state.meta.variables.find((x) => x.id === id);
 const instrumentOf = (v) => (v.source || "").replace(/ via .*/, "");
 
-/* ------------------------------------------------------------------ saved analyses & history */
 const keyOf = (v, sel) => sel.kind === "region" ? `${v}|r|${sel.id}` : sel.kind === "box" ? `${v}|b|${sel.box.join(",")}` : `${v}|p|${sel.lat},${sel.lon}`;
 const Logbook = {
   saved() { return Store.get("saved", []); },
@@ -186,7 +172,6 @@ function when(ts) {
   return d.toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
 
-/* ------------------------------------------------------------------ toast */
 let toastT = null;
 function toast(msg) {
   const t = $("#toast");
@@ -195,5 +180,4 @@ function toast(msg) {
   toastT = setTimeout(() => { t.classList.remove("on"); setTimeout(() => (t.hidden = true), 300); }, 2600);
 }
 
-/* the heartbeat loader, the video's pulse line */
 const PULSE_SVG = '<svg class="pulse-line" viewBox="0 0 120 24" aria-hidden="true"><path d="M0 14h34l5-9 7 16 6-12 4 5h64"/></svg>';

@@ -1,26 +1,20 @@
-/* Analysis workspace: the "day sheet" beside the map.
-   Five sections: Overview · Trend · Evidence · Data · Science.
-   Every value shown is a field of the API result; nothing is recomputed
-   except unit conversions already done by the original UI (per year → per decade). */
 "use strict";
 
 const Analysis = (() => {
   const TABS = ["overview", "trend", "evidence", "data", "science"];
   let current = "overview", trustHTML = "";
 
-  /* ---------------------------------------------------------------- sheet state */
   function sheetState(s) {
     const el = $("#sheet");
     if (s) { el.dataset.state = s; document.body.dataset.sheet = s; }
     return el.dataset.state;
   }
-  function openSheet() { if (["closed", "peek"].includes(sheetState())) sheetState("open"); Explorer.invalidate(); }   // a new place always shows its result
+  function openSheet() { if (["closed", "peek"].includes(sheetState())) sheetState("open"); Explorer.invalidate(); }
   function closeSheet() { sheetState("closed"); if (location.hash === "#/analysis") location.hash = "#/explorer"; Explorer.invalidate(); }
   function expand(on) {
     sheetState(on ? "expanded" : "open");
     $("#expand").setAttribute("aria-pressed", on);
     $("#expand").title = on ? "Back to the map" : "Expand the analysis workspace";
-    // expanded: the overview stays pinned on the left, the chosen detail fills the right
     if (on && current === "overview") tab("trend");
     setTimeout(() => { if (window.Plotly && state.result && !$("#pane-trend").hidden) drawChart(); }, 380);
     Explorer.invalidate();
@@ -40,7 +34,6 @@ const Analysis = (() => {
     Bus.emit("tab", name);
   }
 
-  /* ---------------------------------------------------------------- loading & errors */
   function loading(sel) {
     openSheet();
     $("#sheet").classList.add("is-loading");
@@ -61,7 +54,6 @@ const Analysis = (() => {
     Bus.emit("noresult", msg);
   }
 
-  /* ---------------------------------------------------------------- render */
   function render() {
     const r = state.result, sel = state.sel, vs = varById(r.variable);
     $("#sheet").classList.remove("is-loading");
@@ -162,7 +154,6 @@ const Analysis = (() => {
     </dl>`;
   }
 
-  /* the 95% range diagram: where the rate probably lies, relative to zero */
   function ciDiagram(r, vs) {
     const [lo, hi] = (r.slope_ci95 || [null, null]).map((x) => x == null ? null : x * 10);
     const s = r.slope_per_decade;
@@ -284,7 +275,6 @@ const Analysis = (() => {
       <details class="trust" id="trust"><summary>How do we know this is right?</summary><div id="trust-body">${trustHTML}</div></details>`;
   }
 
-  /* ---------------------------------------------------------------- trust (same content as the original drawer) */
   async function loadTrust() {
     let t;
     try { t = await api(`/api/trust/${state.v}`); } catch (e) { return; }
@@ -317,7 +307,6 @@ const Analysis = (() => {
     Bus.emit("trust", t);
   }
 
-  /* ---------------------------------------------------------------- chart (same traces as the original) */
   function trendColor(r) {
     const vs = varById(r.variable);
     if (r.verdict === "significant_but_small") return C.muted;
@@ -388,7 +377,6 @@ const Analysis = (() => {
       : "Thin line: monthly values after cleaning. Dots: yearly averages. Band: 95% range of the trend.";
   }
 
-  /* ---------------------------------------------------------------- wiring */
   function wire() {
     TABS.forEach((t) => $(`#tab-${t}`).addEventListener("click", () => tab(t)));
     $(".tabs").addEventListener("keydown", (e) => {
@@ -410,7 +398,6 @@ const Analysis = (() => {
     $("#sheet-grip").addEventListener("click", () => sheetState(sheetState() === "peek" ? "open" : "peek"));
     const resizeChart = () => { if (state.result && !$("#pane-trend").hidden && window.Plotly && $("#chart").data) Plotly.Plots.resize("chart"); };
     addEventListener("resize", resizeChart);
-    // the sheet animates its width when it expands: redraw at the final size
     $("#sheet").addEventListener("transitionend", (e) => { if (e.target === $("#sheet") && (e.propertyName === "width" || e.propertyName === "transform")) { drawChart(); resizeChart(); } });
   }
   wire();

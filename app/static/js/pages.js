@@ -1,7 +1,5 @@
-/* Home (mission board), My Analyses (logbook), Learn & Discover, Settings. */
 "use strict";
 
-/* The original "Start an investigation" case files, unchanged. */
 const CASES = [
   { v: "ndvi", r: "new_delta", cmp: "alexandria", title: "A desert turned into farmland",
     q: "Egypt is reclaiming desert west of the Delta while cities like Alexandria spread over old fields. Can a satellite see both?" },
@@ -29,7 +27,6 @@ const Pages = (() => {
   let trustCache = {};
   const trust = async (v) => trustCache[v] || (trustCache[v] = await api(`/api/trust/${v}`).catch(() => null));
 
-  /* ---------------------------------------------------------------- home */
   function home() {
     const now = new Date(), h = now.getHours();
     $("#home-hello").textContent = h < 5 ? "Night shift, explorer?" : h < 12 ? "Good morning, explorer." : h < 18 ? "Good afternoon, explorer." : "Good evening, explorer.";
@@ -71,7 +68,6 @@ const Pages = (() => {
     if (last) { rb.querySelector("span").textContent = `${last.place}, ${SHORT_LABEL[last.v] || last.varLabel}`; rb.onclick = () => openInvestigation(last.v, last.sel); }
   }
 
-  /* ---------------------------------------------------------------- my analyses */
   function logItem(e, i, kind) {
     return `<li class="log-item">
       <span class="log-when mono">${new Date(e.at).toLocaleDateString(undefined, { day: "2-digit", month: "short" })}<br>${new Date(e.at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}</span>
@@ -93,9 +89,7 @@ const Pages = (() => {
     $$(".analyses [data-rm]").forEach((b) => b.addEventListener("click", () => { Logbook.remove(b.dataset.rm); toast("Removed from My Analyses."); }));
   }
 
-  /* ---------------------------------------------------------------- learn */
   function illTrend() {
-    // illustrative series: seasonal cycle + small trend + noise (clearly labelled as an illustration)
     let s = 3, pts = [];
     const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
     for (let i = 0; i < 96; i++) pts.push(50 + 18 * Math.sin(i / 12 * 2 * Math.PI) + i * .18 + (r() - .5) * 10);
@@ -184,7 +178,6 @@ const Pages = (() => {
     })() : `<p>Validation results are not available in this build.</p>`;
   }
 
-  /* ---------------------------------------------------------------- settings */
   function settings() {
     const f = $("#settings-form");
     ["guide", "nudges", "reduceMotion", "sidebarCollapsed"].forEach((k) => (f.elements[k].checked = !!Prefs.get(k)));

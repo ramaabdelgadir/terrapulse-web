@@ -1,16 +1,7 @@
-"""
-Read the project's .env file without any extra package.
-
-Why not python-dotenv: on Windows the common failures are silent - the package is not
-installed in the environment uv/pip actually runs, Notepad saves the file as ".env.txt"
-or with an invisible BOM before the first key, or the variable already exists empty in
-the shell so it is never overridden. This loader handles all of those and prints one
-line at startup saying what it found.
-"""
 import os
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]          # the terrapulse folder
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _candidates():
@@ -22,9 +13,8 @@ def _candidates():
 
 
 def load_env():
-    """Load KEY=value lines into os.environ (file wins over an empty shell value). Returns the file used."""
     for path in _candidates():
-        text = path.read_text(encoding="utf-8-sig", errors="replace")    # utf-8-sig drops a BOM
+        text = path.read_text(encoding="utf-8-sig", errors="replace")
         for line in text.splitlines():
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:

@@ -1,7 +1,3 @@
-/* The TerraPulse globe: a small procedural Earth rendered per pixel on a canvas,
-   in the same stylised spirit as the proposal video. Its signature is the
-   "dawn line": the day/night boundary glows gold, like the sun over the Nile.
-   Pauses when off screen and when "reduce motion" is on. */
 "use strict";
 
 const Globe = (() => {
@@ -27,7 +23,7 @@ const Globe = (() => {
     const L = [-.62, .38, .69], ln = Math.hypot(...L);
     function setup() {
       const css = canvas.getBoundingClientRect();
-      const want = Math.round(Math.min(600, Math.max(220, css.width * .72)));   // drawn a bit smaller and scaled up by the browser
+      const want = Math.round(Math.min(600, Math.max(220, css.width * .72)));
       if (want === S) return;
       S = want; canvas.width = canvas.height = S;
       img = ctx.createImageData(S, S); D = img.data;
@@ -43,8 +39,6 @@ const Globe = (() => {
         pl[i] = (nx * L[0] + ny * L[1] + nzv * L[2]) / ln; pn[i] = nzv;
       }
     }
-    /* Everything that does not change while the globe turns (lighting, dawn glow, rim, edge, the ocean,
-       the halo) is computed once per size; each frame then only looks up the turning land. */
     let prepS = 0, disc, dayA, addR, addG, addB, edgeA, oR, oG, oB, polar;
     const landLUT = new Uint8Array(256 * 3);
     for (let h = 0; h < 256; h++) { const e = Math.max(0, Math.min(1, (h - 124) / 60));
@@ -56,16 +50,16 @@ const Globe = (() => {
       edgeA = new Uint8Array(n); oR = new Uint8Array(n); oG = new Uint8Array(n); oB = new Uint8Array(n); polar = new Uint8Array(n);
       for (let i = 0; i < n; i++) {
         const o = i * 4, r = pr[i];
-        if (r < 0) {                                   // atmosphere halo outside the disc: drawn once
+        if (r < 0) {
           const d = pn[i], a = d < 1.14 ? Math.pow(1 - (d - 1) / .14, 2.2) : 0;
-          D[o] = 63; D[o + 1] = 217; D[o + 2] = 207; D[o + 3] = a * 100; continue;   // Nile-turquoise atmosphere
+          D[o] = 63; D[o + 1] = 217; D[o + 2] = 207; D[o + 3] = a * 100; continue;
         }
         list.push(i);
         const lam = pl[i], day = Math.max(0, Math.min(1, (lam + .1) * 2.4));
         const dawn = Math.exp(-Math.pow((lam + .02) / .07, 2));
         const rim = Math.pow(1 - pn[i], 2.6) * (.3 + .9 * day);
         dayA[i] = day;
-        addR[i] = 235 * dawn * .6 + 50 * rim; addG[i] = 170 * dawn * .5 + 190 * rim; addB[i] = 60 * dawn * .3 + 185 * rim;   // golden dawn line, turquoise rim
+        addR[i] = 235 * dawn * .6 + 50 * rim; addG[i] = 170 * dawn * .5 + 190 * rim; addB[i] = 60 * dawn * .3 + 185 * rim;
         edgeA[i] = 255 * Math.min(1, pn[i] * S * .43 / 1.2);
         polar[i] = r < 14 || r > TH - 14 ? 1 : 0;
         const R = 3 + (12 + lam * 30 - 3) * day + addR[i], G = 8 + (60 + lam * 52 - 8) * day + addG[i], B = 28 + (140 + lam * 50 - 28) * day + addB[i];
@@ -80,7 +74,7 @@ const Globe = (() => {
         const i = disc[k], o = i * 4;
         const idx = pr[i] * TW + ((pc[i] + sh) & (TW - 1)), h = tex[idx];
         D[o + 3] = edgeA[i];
-        if (h <= 124) { D[o] = oR[i]; D[o + 1] = oG[i]; D[o + 2] = oB[i]; continue; }   // ocean: precomputed
+        if (h <= 124) { D[o] = oR[i]; D[o + 1] = oG[i]; D[o + 2] = oB[i]; continue; }
         const day = dayA[i];
         let R, G, B;
         if (polar[i]) { R = 226; G = 236; B = 248; } else { R = landLUT[h * 3]; G = landLUT[h * 3 + 1]; B = landLUT[h * 3 + 2]; }
@@ -94,7 +88,7 @@ const Globe = (() => {
     function loop(t) {
       raf = 0;
       if (!visible) return;
-      if (t - last > 80) { rot += .0026 * Math.min(6, (t - last) / 16 || 1); last = t; frame(); }   // ~12 frames/s is plenty for a slow spin
+      if (t - last > 80) { rot += .0026 * Math.min(6, (t - last) / 16 || 1); last = t; frame(); }
       if (!Prefs.get("reduceMotion")) raf = requestAnimationFrame(loop);
     }
     function start() { setup(); frame(); if (!raf && !Prefs.get("reduceMotion")) raf = requestAnimationFrame(loop); }

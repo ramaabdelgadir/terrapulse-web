@@ -1,10 +1,8 @@
-/* Landing page: globe, platform tour video, instruments, method, live discoveries. */
 "use strict";
 
 const Landing = (() => {
   let built = false, globe = null;
 
-  /* the discoveries we show: real API results, chosen to include unconfirmed ones */
   const NOTES = [
     { v: "ndvi", r: "new_delta", feature: true, kicker: "Desert reclamation, west of the Delta" },
     { v: "no2", r: "greater_cairo", kicker: "The air above a megacity" },
@@ -94,10 +92,9 @@ const Landing = (() => {
 
   function video() {
     const v = $("#intro-video"), btn = $("#monitor-start");
-    const play = () => { btn.hidden = true; v.controls = true; v.play().catch(() => { /* the user can press play */ }); };
+    const play = () => { btn.hidden = true; v.controls = true; v.play().catch(() => {}); };
     btn.addEventListener("click", () => { play(); v.focus(); });
     v.addEventListener("play", () => { btn.hidden = true; v.controls = true; });
-    // keep the chapter list in step with the video
     const marks = $$("#chapters button").map((b) => [+b.dataset.t, b]);
     v.addEventListener("timeupdate", () => {
       let cur = marks[0][1];
@@ -105,7 +102,6 @@ const Landing = (() => {
       marks.forEach(([, b]) => b.classList.toggle("on", b === cur));
     });
     marks.forEach(([t, b]) => b.addEventListener("click", () => { v.currentTime = t; play(); }));
-    // pause when the visitor leaves the landing page
     Bus.on("route", (r) => { if (r !== "landing" && !v.paused) v.pause(); });
   }
 
@@ -124,7 +120,6 @@ const Landing = (() => {
     globe.start();
     video(); clock();
     if (state.meta) { instruments(); discoveries(); }
-    // reveal-on-scroll
     const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .12 });
     $$(".landing section, .how-steps li, .instruments").forEach((s) => io.observe(s));
   }

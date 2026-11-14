@@ -1,14 +1,11 @@
-/* AI chat, shared by the AI Companion page and the in-map "Ask" drawer.
-   Same backend call as the original "Ask TerraPulse" box: POST /api/explain with
-   the current result as context (and the comparison, when one is loaded). */
 "use strict";
 
 const Chat = (() => {
-  let msgs = [];          // { role: "user"|"ai"|"pending"|"err", text, src }
+  let msgs = [];
   let busy = false;
-  let seq = 0;            // id of the current question; answers to older questions are ignored
-  let ctrl = null;        // AbortController of the request in flight
-  const TIMEOUT_MS = 60000;      // the server gives up on both free models within ~45 s
+  let seq = 0;
+  let ctrl = null;
+  const TIMEOUT_MS = 60000;
 
   const SUGGEST = () => {
     const r = state.result;
@@ -71,8 +68,6 @@ const Chat = (() => {
     el.querySelector("[data-sugt]").addEventListener("click", () => { sugUser = !sugOpen(); renderAll(); });
   }
 
-  /* suggested questions: a small pop-up above the text box, so they never cover the answer.
-     Open by default only while the conversation is empty; the "Ideas" button shows or hides them any time. */
   let sugUser = null;
   const sugOpen = () => !busy && (sugUser !== null ? sugUser : msgs.length === 0);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && sugUser) { sugUser = false; renderAll(); } });
@@ -93,7 +88,7 @@ const Chat = (() => {
         : `<p class="chat-hint">Ask in your own words, or tap a question.</p>`;
       const sug = el.querySelector("[data-suggest]");
       const open = sugOpen();
-      sug.hidden = !open;                                  // also hidden while the AI is thinking
+      sug.hidden = !open;
       sug.innerHTML = open ? SUGGEST().map((s, i) => `<button type="button" data-i="${i}">${esc(s.label)}</button>`).join("") : "";
       $$("[data-suggest] button", el).forEach((b) => b.addEventListener("click", () => {
         const s = SUGGEST()[+b.dataset.i]; sugUser = null; if (s) ask(s.q, s.label);
@@ -145,7 +140,7 @@ const Chat = (() => {
     } finally {
       clearTimeout(timer);
     }
-    if (my !== seq) return;                // the place changed or the user pressed Stop: drop this answer
+    if (my !== seq) return;
     ctrl = null;
     const k = msgs.findIndex((m) => m.role === "pending");
     if (k >= 0) msgs.splice(k, 1, reply); else msgs.push(reply);
@@ -154,7 +149,7 @@ const Chat = (() => {
 
   function stop() {
     if (!busy) return;
-    seq++;                                  // the answer, if it still arrives, is ignored
+    seq++;
     if (ctrl) ctrl.abort("user");
     ctrl = null;
     const k = msgs.findIndex((m) => m.role === "pending");
@@ -162,7 +157,6 @@ const Chat = (() => {
     busy = false; renderAll();
   }
 
-  /* a new finding starts a new conversation; cancel any question still waiting */
   function reset() {
     if (busy) { seq++; if (ctrl) ctrl.abort("user"); ctrl = null; busy = false; }
     msgs = []; sugUser = null; renderAll();
@@ -171,7 +165,7 @@ const Chat = (() => {
   function openDrawer() {
     $("#ask-drawer").hidden = false;
     $("#sheet").classList.add("asking"); document.body.classList.add("asking");
-    Explorer.invalidate();                     // the panel is wider while asking: let the map re-measure
+    Explorer.invalidate();
     renderAll();
     setTimeout(() => $("#ask-drawer input")?.focus(), 50);
   }

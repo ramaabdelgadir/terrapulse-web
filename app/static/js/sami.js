@@ -1,11 +1,3 @@
-/* Kemet, the little guardian of the Black Land: TerraPulse's guide and AI companion.
-   Named after Kemet, "the Black Land", the ancient Egyptian name for the fertile Nile soil.
-   Drawn in SVG from the team's character design: black visor with big turquoise eyes, a gold
-   forehead band and gold headphones, an antenna with a turquoise light, a leaf sprouting on top,
-   a cream and black body with a glowing leaf on the chest, and a brown scarf with gold triangles.
-   In the "hold" pose he projects a small map of the Delta with the Nile running through it.
-   kemetSVG({ pose: "rest"|"wave"|"point"|"hold", face: "neutral"|"happy"|"think"|"wow"|"wink", head: bool })
-   (samiSVG is kept as an alias so older calls keep working.) */
 "use strict";
 
 let kemetN = 0;
@@ -15,7 +7,6 @@ function kemetSVG(opt = {}) {
   const cream = "#EADFC6", creamD = "#CDBF9F", soil = "#17130E", soil2 = "#2A231A", gold = "#D4A24C", goldD = "#9C7330",
         nile = "#3FD9CF", leaf = "#7CC35A", leafD = "#3F8A35", cape = "#6E4B2C", capeD = "#4F341D";
 
-  // eyes: turquoise rings with dark pupils and a white glint, like the reference
   const ring = (cx, cy, r = 12.5, look = [0, 0]) =>
     `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${nile}"/><circle cx="${cx + look[0]}" cy="${cy + look[1]}" r="${r - 4.2}" fill="#0B1F1E"/>` +
     `<circle cx="${cx + look[0] + 3}" cy="${cy + look[1] - 3.4}" r="2.8" fill="#fff"/><circle cx="${cx + look[0] - 2.6}" cy="${cy + look[1] + 3}" r="1.1" fill="#fff" opacity=".7"/>`;

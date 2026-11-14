@@ -1,6 +1,3 @@
-/* Kemet, the guide: a docked companion that opens a small speech panel with
-   tips for the current page, plain explanations of terms, a first-visit tour
-   and occasional nudges. Optional (Settings), dismissible, never blocks controls. */
 "use strict";
 
 const Guide = (() => {
@@ -79,7 +76,6 @@ const Guide = (() => {
   let open = false, step = 0, tourI = -1, peekT = null, route = "landing", ringRaf = 0;
   const small = () => matchMedia("(max-width: 860px)").matches;
 
-  /* ---------------------------------------------------------------- spotlight ring (follows the target) */
   const ring = document.createElement("div");
   ring.className = "tour-ring"; ring.hidden = true; ring.setAttribute("aria-hidden", "true");
   document.body.appendChild(ring);
@@ -95,13 +91,13 @@ const Guide = (() => {
                   && getComputedStyle(t).visibility !== "hidden";
     ring.hidden = !shown;
     if (shown) {
-      const pad = 4, m = 4;   // keep the whole ring on screen, even for full-height targets like the sidebar
+      const pad = 4, m = 4;
       const x0 = Math.max(m, r.left - pad), y0 = Math.max(m, r.top - pad);
       const x1 = Math.min(innerWidth - m, r.right + pad), y1 = Math.min(innerHeight - m, r.bottom + pad);
       Object.assign(ring.style, { left: `${x0}px`, top: `${y0}px`, width: `${x1 - x0}px`, height: `${y1 - y0}px`,
                                   borderRadius: getComputedStyle(t).borderRadius === "50%" ? "50%" : "14px" });
     }
-    ringRaf = tourI >= 0 ? requestAnimationFrame(placeRing) : 0;   // keep following while the tour is open
+    ringRaf = tourI >= 0 ? requestAnimationFrame(placeRing) : 0;
   }
 
   function el(id) { return document.getElementById(id); }
@@ -146,7 +142,6 @@ const Guide = (() => {
     setOpen(false); location.hash = a;
   }
 
-  /* ---------------------------------------------------------------- tour */
   function startTour() { tourI = 0; setOpen(true); renderTour(); }
   function renderTour() {
     const s = TOUR[tourI];
@@ -171,7 +166,6 @@ const Guide = (() => {
     setOpen(false);
   }
 
-  /* ---------------------------------------------------------------- open / close / peek */
   function setOpen(on) {
     open = on;
     el("guide-bubble").hidden = !on;
@@ -197,13 +191,12 @@ const Guide = (() => {
   }
   function once(k) { const s = Store.get("nudged", {}); if (s[k]) return false; s[k] = 1; Store.set("nudged", s); return true; }
 
-  /* ---------------------------------------------------------------- reacting to the app */
   Bus.on("route", (r) => {
     route = r; step = 0;
     if (tourI >= 0) return;
     if (open) render(); else setFace((tips[r] || tips.landing)().face);
     if (!Prefs.get("welcomed") && Prefs.get("guide") && (r === "landing" || r === "home"))
-      setTimeout(() => {   // only if the visitor is still on that page and hasn't opened Kemet meanwhile
+      setTimeout(() => {
         if (!Prefs.get("welcomed") && Prefs.get("guide") && tourI < 0 && !open && route === r) startTour();
       }, r === "landing" ? 2600 : 900);
   });

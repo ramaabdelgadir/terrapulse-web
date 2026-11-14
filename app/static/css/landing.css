@@ -1,6 +1,5 @@
-/* ------------------------------------------------------------------ landing: night → dawn → day → night */
 .landing { overflow-x: hidden; }
-.ld-hero { position: relative; min-height: max(640px, 100vh); overflow: hidden; display: flex; align-items: center;
+.ld-hero { position: relative; min-height: max(560px, 100vh); overflow: hidden; display: flex; align-items: center;
            background: radial-gradient(ellipse 70% 60% at 78% 18%, rgba(232, 194, 110, .2), transparent 60%),
                        radial-gradient(ellipse 50% 50% at 10% 92%, rgba(127, 191, 134, .1), transparent 60%),
                        radial-gradient(ellipse 120% 90% at 50% 40%, #22353b, #1a2a30 55%, #142328); }
@@ -13,15 +12,15 @@
   background-size: 640px 520px; opacity: .55; }
 
 .ld-globe { position: absolute; width: min(112vh, 68vw); aspect-ratio: 1; right: -17vw; bottom: -47vh; image-rendering: auto;
-            border-radius: 50%; box-shadow: 0 0 60px rgba(124, 198, 214, .22);   /* a blur filter here was re-computed on every frame of the spin */ }
+            border-radius: 50%; box-shadow: 0 0 60px rgba(124, 198, 214, .22);    }
 .ld-orbit { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: .75; }
-.ld-hero-copy { position: relative; z-index: 2; padding: 90px clamp(24px, 6vw, 96px) 140px; max-width: 980px; }
-.ld-title { font-weight: 300; font-size: clamp(46px, 7.2vw, 108px); line-height: .98; letter-spacing: -.045em; margin: 0; }
+.ld-hero-copy { position: relative; z-index: 2; padding: clamp(28px, 7vh, 90px) clamp(24px, 6vw, 96px) clamp(64px, 11vh, 140px); max-width: 980px; }
+.ld-title { font-weight: 300; font-size: clamp(40px, min(7.2vw, 10.5vh), 108px); line-height: .98; letter-spacing: -.045em; margin: 0; }
 .ld-title .l1 { display: block; color: var(--star); }
 .ld-title .l2 { display: block; padding-left: clamp(0px, 8vw, 140px); color: #c4d6d2; }
 .ld-title em { font-style: normal; font-weight: 500; background: var(--orbit); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.ld-lead { max-width: 520px; margin: 34px 0 0 clamp(0px, 8vw, 140px); font-size: clamp(16px, 1.4vw, 19px); color: var(--dim); line-height: 1.6; }
-.ld-actions { display: flex; flex-wrap: wrap; gap: 14px; margin: 36px 0 0 clamp(0px, 8vw, 140px); }
+.ld-lead { max-width: 520px; margin: clamp(14px, 3.4vh, 34px) 0 0 clamp(0px, 8vw, 140px); font-size: clamp(16px, 1.4vw, 19px); color: var(--dim); line-height: 1.6; }
+.ld-actions { display: flex; flex-wrap: wrap; gap: 14px; margin: clamp(16px, 3.6vh, 36px) 0 0 clamp(0px, 8vw, 140px); }
 .ld-sami { position: absolute; z-index: 3; width: clamp(120px, 11vw, 190px); right: clamp(40px, 7vw, 120px); top: clamp(70px, 12vh, 140px);
            }
 .ld-telemetry { position: absolute; z-index: 2; left: clamp(24px, 6vw, 96px); bottom: 34px; display: flex; flex-wrap: wrap; gap: 8px 22px;
@@ -32,12 +31,10 @@
 .ld-scroll i { width: 1px; height: 46px; background: linear-gradient(var(--cyan), transparent); animation: drop 2s ease-in-out infinite; }
 @keyframes drop { 0% { transform: scaleY(0); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
 
-/* reveal on scroll */
 .landing section:not(.in), .how-steps li:not(.in), .instruments:not(.in) { opacity: 0; transform: translateY(26px); }
 .landing section.in, .how-steps li.in, .instruments.in { opacity: 1; transform: none; transition: opacity .8s var(--ease), transform .8s var(--ease); }
 .how-steps li:nth-child(2).in { transition-delay: .12s; } .how-steps li:nth-child(3).in { transition-delay: .24s; }
 
-/* ------------------------------------------------------------------ briefing */
 .ld-briefing { position: relative; display: grid; grid-template-columns: minmax(280px, 5fr) 8fr; gap: clamp(28px, 4vw, 64px); align-items: center;
                padding: 110px clamp(24px, 6vw, 96px); background: linear-gradient(180deg, #142328, var(--night-1)); }
 .ld-briefing h2 { font-size: clamp(30px, 3.4vw, 46px); font-weight: 400; margin-bottom: 18px; }
@@ -55,7 +52,6 @@
 .monitor-frame::after { bottom: 12px; right: 12px; border-left: 0; border-top: 0; }
 .monitor iframe, .monitor video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #1d2d33; object-fit: contain; }
 .monitor-start[hidden] { display: none; }
-/* the tour video gets the full width so its captions are readable; chapters sit underneath in columns */
 .ld-briefing { grid-template-columns: minmax(0, 1120px); justify-content: center; gap: 0; }
 .ld-briefing-copy { display: contents; }
 .ld-briefing .eyebrow, .ld-briefing h2, .ld-briefing-copy > p { max-width: 760px; }
@@ -74,7 +70,6 @@
 .monitor figcaption { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 20px; margin-top: 12px; font-size: 11px; color: var(--dim-2); letter-spacing: .08em; }
 .monitor figcaption span:first-child { color: var(--magenta); }
 
-/* ------------------------------------------------------------------ instruments */
 .ld-explore { padding: 60px clamp(24px, 6vw, 96px) 140px; background: var(--night-1); }
 .ld-sec-head { max-width: 760px; margin-bottom: 44px; }
 .ld-sec-head h2 { font-size: clamp(36px, 4.6vw, 64px); font-weight: 400; }
@@ -102,7 +97,6 @@
 .ins-go { border: 1px solid var(--glass-line-2); background: none; color: var(--star); border-radius: 999px; padding: 9px 16px; font-size: 13.5px; white-space: nowrap; }
 .ins-go:hover { border-color: var(--cyan); color: var(--cyan); }
 
-/* ------------------------------------------------------------------ how it works: the dawn */
 .ld-how { position: relative; padding: 200px clamp(24px, 6vw, 96px) 110px; background: var(--day-0); color: var(--ink); }
 .dawn-edge { position: absolute; left: 0; right: 0; top: -1px; height: 150px; pointer-events: none;
   background: no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 150' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23ff5cc8'/%3E%3Cstop offset='.55' stop-color='%23a56bff'/%3E%3Cstop offset='1' stop-color='%235ee0ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 0H1440V30Q720 190 0 30Z' fill='%23050818'/%3E%3Cpath d='M0 30Q720 190 1440 30' fill='none' stroke='url(%23g)' stroke-width='3'/%3E%3C/svg%3E"); }
@@ -116,7 +110,6 @@
 .how-steps h3 { font-size: clamp(22px, 2vw, 28px); margin: 8px 0 10px; }
 .how-steps p { color: var(--ink-2); margin: 0; max-width: 360px; }
 
-/* ------------------------------------------------------------------ discoveries */
 .ld-discover { padding: 60px clamp(24px, 6vw, 96px) 140px; background: linear-gradient(180deg, var(--day-0), #2a4148); color: var(--ink); }
 .discoveries { display: grid; grid-template-columns: repeat(12, 1fr); gap: 22px; }
 .discoveries > .loading-row { grid-column: 1 / -1; color: var(--ink-3); }
@@ -144,7 +137,6 @@
 .note-open span { display: inline-block; transition: transform .2s var(--ease); }
 .note-open:hover span { transform: translateX(4px); }
 
-/* ------------------------------------------------------------------ final call */
 .ld-final { position: relative; overflow: hidden; min-height: 620px; padding: 140px clamp(24px, 6vw, 96px) 0; display: grid; grid-template-columns: 1fr auto; align-items: center;
             background: radial-gradient(ellipse 90% 70% at 50% 140%, #3f8a6a, #2a5a46 35%, transparent 62%), radial-gradient(ellipse at 50% 0, #22353b, var(--night-0) 70%); }
 .ld-final::before { content: ""; }
@@ -158,7 +150,6 @@
 .ld-foot { position: relative; z-index: 2; grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; padding: 160px 0 28px;
            font-size: 11px; letter-spacing: .1em; color: rgba(238, 243, 236, .7); }
 
-/* ------------------------------------------------------------------ landing responsive */
 @media (max-width: 1100px) {
   .instruments li:not(.loading-row) { grid-template-columns: 40px 56px 1fr; }
   .ins-side { grid-column: 3; } .ins-go { grid-column: 3; justify-self: start; }
@@ -186,7 +177,6 @@
   .ld-foot { padding-top: 90px; }
 }
 
-/* Kemet floats beside the globe, low on the right, never over the headline (checked at 1024-1920 px wide) */
 @media (min-width: 861px) {
   .ld-sami { top: auto; bottom: clamp(130px, 22vh, 300px); right: clamp(110px, 10vw, 220px); width: clamp(110px, 9vw, 170px); }
 }

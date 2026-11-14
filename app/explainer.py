@@ -1,22 +1,3 @@
-"""
-STEP 7 - The AI explainer.
-
-Uses OpenRouter (https://openrouter.ai) with FREE models only. Put your key in .env:
-  OPENROUTER_API_KEY=sk-or-...
-Models, tried in this order:
-  1. nvidia/nemotron-3-ultra-550b-a55b:free   main model: strongest reasoning, careful with numbers
-  2. nvidia/nemotron-3.5-lightning:free       backup if Ultra is busy, slow (>25 s) or rate limited (smaller, faster)
-Only model ids ending in ":free" are ever sent, so the explainer cannot cost money.
-
-Design rules, enforced in the system prompt AND by what we send:
-  * The model only sees the computed results for what is on screen (a compact JSON),
-    never raw data, so every number it says comes from our statistics.
-  * It explains what / where / how much / how sure, in Arabic or English.
-  * It never states causes as findings. If asked "why", it may list possible
-    factors scientists consider, clearly labelled as not tested by TerraPulse.
-  * If no model answers (no key, offline, rate limit), a template explanation is
-    used so the demo never breaks.
-"""
 import json
 import os
 import time
@@ -24,10 +5,10 @@ import urllib.error
 import urllib.request
 
 try:
-    from .envfile import report          # when run as app.explainer (uvicorn app.server:app)
+    from .envfile import report
 except ImportError:
-    from envfile import report           # when run from inside the app folder
-report()                                 # reads terrapulse/.env and prints whether the key was found
+    from envfile import report
+report()
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODELS = ["nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -35,19 +16,16 @@ MODELS = ["nvidia/nemotron-3-ultra-550b-a55b:free",
 
 
 def models():
-    """Models to try. LLM_MODEL in .env can replace the list, but only free models are allowed."""
     custom = [m.strip() for m in os.getenv("LLM_MODEL", "").split(",") if m.strip()]
     return [m for m in (custom or MODELS) if m.endswith(":free")]
 
 
-TIMEOUTS = {"nvidia/nemotron-3-ultra-550b-a55b:free": 25, "nvidia/nemotron-3.5-lightning:free": 20}   # seconds
+TIMEOUTS = {"nvidia/nemotron-3-ultra-550b-a55b:free": 25, "nvidia/nemotron-3.5-lightning:free": 20}
 
 
 def call_openrouter(model, system, msgs, think=False):
-    body = {"model": model, "max_tokens": 700,          # answers are 60-110 words; no need for more
+    body = {"model": model, "max_tokens": 700,
             "messages": [{"role": "system", "content": system}] + msgs}
-    # Thinking before answering made replies take a minute or more on the free endpoint. Our answers are short
-    # and built only from numbers we pass in, so thinking is switched off.
     if not think:
         body["reasoning"] = {"enabled": False, "exclude": True}
     req = urllib.request.Request(
@@ -59,13 +37,13 @@ def call_openrouter(model, system, msgs, think=False):
         with urllib.request.urlopen(req, timeout=TIMEOUTS.get(model, 20)) as r:
             data = json.loads(r.read())
     except urllib.error.HTTPError as e:
-        if e.code == 400 and not think:                 # model does not accept the "no thinking" switch
+        if e.code == 400 and not think:
             return call_openrouter(model, system, msgs, think=True)
         raise
     if "error" in data:
         raise RuntimeError(str(data["error"]))
     text = data["choices"][0]["message"].get("content") or ""
-    if "</think>" in text:                      # in case reasoning leaks into the answer
+    if "</think>" in text:
         text = text.split("</think>", 1)[1]
     return text.strip()
 
@@ -99,7 +77,6 @@ CONTEXT.dummy true: say it is demonstration data.
 7. Reply in {lang_name}. In Arabic use simple Modern Standard Arabic, Western digits, and keep NDVI, MODIS, \
 NO2 in Latin script."""
 
-# Short, documented facts the model may use as context. It may NOT add anything beyond these.
 PLACE_NOTES = {
     "new_delta": "Desert land west of the Nile Delta, along the Cairo-Alexandria desert road, that Egypt has been "
                  "reclaiming for irrigated agriculture since the late 20th century; the national New Delta "
@@ -126,7 +103,6 @@ VAR_NOTES = {
     "station_temp": "Air temperature from a weather station at Alexandria airport, used to check the satellite data.",
 }
 
-# The quick buttons send these questions; give the model a clear brief for each.
 QUESTION_BRIEFS = {
     "Why might this be happening? Separate what the data shows from possible causes.":
         "Why might this be happening? Use only the facts in PLACE_NOTES, as context that fits the change, not as proven causes.",
@@ -140,7 +116,7 @@ def place_notes(ctx):
     var = ctx.get("variable") or ctx.get("var") or ""
     title = (ctx.get("title") or "").lower()
     reg = ctx.get("region") or ctx.get("id") or next((k for k in PLACE_NOTES if k.replace("_", " ") in title), None)
-    if not reg:  # match by readable name, e.g. "New Delta (west, ...)"
+    if not reg:
         names = {"new delta": "new_delta", "alexandria": "alexandria", "cairo": "greater_cairo",
                  "mediterranean": "north_coast", "amazon": "amazon", "nile delta": "nile_delta"}
         reg = next((v for k, v in names.items() if k in title), None)
@@ -164,7 +140,6 @@ KEEP = ["title", "kind", "variable_label", "units", "source", "frequency", "meth
 
 
 def compact(ctx):
-    """Only the numbers the explainer may use (no long time series)."""
     if ctx is None:
         return None
     out = {k: ctx.get(k) for k in KEEP if k in ctx}
@@ -201,7 +176,7 @@ def explain(context, question=None, compare=None, lang="en", history=None):
                  "content": f"{json.dumps(payload, ensure_ascii=False, default=str)}\n\nQuestion: {q}"})
     system = SYSTEM.format(lang_name="Arabic" if lang == "ar" else "English")
     reason = "no free model configured"
-    for model in models():                       # main model first, then the backup
+    for model in models():
         t0 = time.time()
         try:
             text = call_openrouter(model, system, msgs)
@@ -209,14 +184,13 @@ def explain(context, question=None, compare=None, lang="en", history=None):
             if text:
                 return {"answer": text, "source": f"{model} (OpenRouter, free)"}
             reason = "empty answer"
-        except Exception as e:                   # network, key, rate limit ... try the next model
+        except Exception as e:
             reason = "rate limit reached, try again in a minute" if "429" in str(e) else \
                      "the free model was too slow" if "timed out" in str(e).lower() else type(e).__name__
             print(f"[Kemet] {model}: failed after {time.time() - t0:.1f} s ({reason}: {str(e)[:120]})", flush=True)
     return {"answer": template(context, compare, lang), "source": f"template (OpenRouter unavailable: {reason})"}
 
 
-# ---------------------------------------------------------------- offline fallback
 def _fmt(x, nd=3):
     if x is None:
         return "–"
@@ -252,7 +226,7 @@ def template(ctx, compare=None, lang="en"):
     cp = ctx.get("change_point") or {}
     if lang == "ar":
         v = AR_VERDICT.get(ctx.get("verdict"), "")
-        iso = lambda x: f"\u2068{x}\u2069"          # keep English names readable inside Arabic text
+        iso = lambda x: f"\u2068{x}\u2069"
         s = (f"{iso(ctx['variable_label'])} في «{iso(ctx['title'])}»: {v} "
              f"المعدل {_fmt(dec)} {u} لكل عقد (نطاق 95%: {_fmt(lo * 10 if lo is not None else None)} "
              f"إلى {_fmt(hi * 10 if hi is not None else None)}).")

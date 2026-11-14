@@ -1,9 +1,3 @@
-"""
-STEP 5 - The service layer: turns pipeline results into what the website needs.
-
-Precomputed (fast):  pixel layers and region results from data/results/
-Live (still fast):   analysis of any box the user draws, or any pixel clicked
-"""
 import json
 import sys
 from functools import lru_cache
@@ -14,12 +8,11 @@ import pandas as pd
 import xarray as xr
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import config as C                                    # noqa: E402
-from trend_stats import analyze_series, verdict       # noqa: E402
+import config as C
+from trend_stats import analyze_series, verdict
 
-IS_DUMMY = C.DUMMY_DATA   # shown on screen and told to the AI
+IS_DUMMY = C.DUMMY_DATA
 
-# Colour meaning per variable: (decrease colour, increase colour, what each means)
 SCHEMES = {
     "ndvi":        {"neg": "#8C5A24", "pos": "#2F7A4F", "neg_word": "browning", "pos_word": "greening"},
     "lst":         {"neg": "#2F6EA3", "pos": "#B8433A", "neg_word": "cooling", "pos_word": "warming"},
@@ -31,7 +24,6 @@ SCHEMES = {
     "et":          {"neg": "#A86F1F", "pos": "#1A78A0", "neg_word": "less evaporation", "pos_word": "more evaporation"},
 }
 
-# Plain-language definitions for students (the challenge asks for these).
 DEFINITIONS = {
     "ndvi": "NDVI measures how green and leafy the land is, from satellite light readings. "
             "Near 0 is bare sand or city; about 0.3 is sparse plants; above 0.6 is dense, healthy crops.",
@@ -52,7 +44,6 @@ DEFINITIONS = {
 
 
 def _clean(o):
-    """JSON-safe: NaN/inf -> None, numpy -> python."""
     if isinstance(o, dict):
         return {k: _clean(v) for k, v in o.items()}
     if isinstance(o, (list, tuple)):
@@ -86,7 +77,7 @@ def meta():
     rows = regions_file()
     for name, spec in C.VARIABLES.items():
         vrows = [r for r in rows if r["variable"] == name]
-        if not vrows:                      # no results yet (e.g. data still downloading)
+        if not vrows:
             continue
         variables.append({
             "id": name, "label": spec["label"], "units": spec["units"], "source": spec["source"],
@@ -123,7 +114,6 @@ def pixels(var):
 
 
 def chart_lines(years, annual, res):
-    """Trend line (and 95% fan) through the annual means, Sen-style intercept."""
     yrs = np.asarray(years, dtype=float)
     a = np.array([np.nan if v is None else v for v in annual], dtype=float)
     ok = ~np.isnan(a)
@@ -180,7 +170,6 @@ def region(var, region_id):
 
 
 def analyze_box(var, box):
-    """Live analysis of a user-drawn box (lat_min, lat_max, lon_min, lon_max)."""
     ds = clean_ds(var)
     la0, la1, lo0, lo1 = box
     sub = ds.sel(lat=slice(la0, la1), lon=slice(lo0, lo1))
@@ -192,7 +181,6 @@ def analyze_box(var, box):
     mean = v.weighted(w).mean(("lat", "lon")).where(v.notnull().mean(("lat", "lon")) >= 0.5)
     spec = C.VARIABLES[var]
     res = analyze_series(mean.values, mean.time.values, ds.attrs["frequency"], spec["percent_change"])
-    # A single user-chosen box is one test -> q = p, and we say so.
     res["q"] = res["p"]
     res["verdict"], res["verdict_text"] = verdict(res, res["q"], C.ALPHA, min_meaningful=spec.get("min_meaningful"))
     res.update(pixels_used=n_ok, pixels_total=int(sub.status.size), box=list(box), frequency=ds.attrs["frequency"])
@@ -210,7 +198,7 @@ def analyze_pixel(var, lat, lon):
     spec = C.VARIABLES[var]
     res = analyze_series(cell.value.values, cell.time.values, ds.attrs["frequency"], spec["percent_change"])
     px = xr.open_dataset(C.RESULTS / f"pixels_{var}.nc").sel(lat=la, lon=lo)
-    res["q"] = float(px.q)                                  # FDR-corrected across the map
+    res["q"] = float(px.q)
     res["verdict"], res["verdict_text"] = verdict(res, res["q"], C.ALPHA, min_meaningful=spec.get("min_meaningful"))
     res.update(pixels_used=1, pixels_total=1, frequency=ds.attrs["frequency"])
     return _package(var, res, cell.time.values, cell.value.values,

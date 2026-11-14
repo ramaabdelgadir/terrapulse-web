@@ -20,7 +20,6 @@
 <body data-route="landing">
 <a class="skip" href="#main">Skip to content</a>
 
-<!-- ============================================================ mobile top bar -->
 <header class="topbar" aria-label="TerraPulse">
   <button class="icon-btn" id="drawer-open" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h16"/></svg>
@@ -29,7 +28,6 @@
   <span class="topbar-page" id="topbar-page"></span>
 </header>
 
-<!-- ============================================================ sidebar -->
 <nav class="sidebar" id="sidebar" aria-label="Main navigation">
   <div class="sb-head">
     <a class="sb-brand" href="#/" aria-label="TerraPulse introduction">
@@ -77,10 +75,8 @@
 </nav>
 <div class="scrim" id="scrim" hidden></div>
 
-<!-- ============================================================ pages -->
 <main id="main" tabindex="-1">
 
-  <!-- ---------------------------------------------- landing -->
   <section class="page landing" data-page="landing" aria-label="Introduction">
     <div class="ld-hero">
       <canvas class="ld-globe" id="globe" aria-hidden="true"></canvas>
@@ -112,21 +108,21 @@
         <p>A real walk through the platform: choose a measurement, pick a place, read the verdict, compare places, check the evidence, ask Kemet, and save what you find. It is a screen recording of the live site working on real NASA data.</p>
         <ol class="chapters" id="chapters">
           <li><button data-t="0"><span class="mono">00:00</span>What TerraPulse is</button></li>
-          <li><button data-t="23.7"><span class="mono">00:24</span>Choose what to explore</button></li>
-          <li><button data-t="54.9"><span class="mono">00:55</span>Pick a place, read the verdict</button></li>
-          <li><button data-t="77.5"><span class="mono">01:17</span>Compare places and check the evidence</button></li>
-          <li><button data-t="97.5"><span class="mono">01:37</span>Ask Kemet, the AI companion</button></li>
-          <li><button data-t="152.5"><span class="mono">02:32</span>Draw your own area</button></li>
-          <li><button data-t="179.9"><span class="mono">03:00</span>Save findings and learn the science</button></li>
+          <li><button data-t="19.4"><span class="mono">00:19</span>Choose what to explore</button></li>
+          <li><button data-t="41.5"><span class="mono">00:42</span>Pick a place, read the verdict</button></li>
+          <li><button data-t="59.6"><span class="mono">01:00</span>Compare places and check the evidence</button></li>
+          <li><button data-t="75.8"><span class="mono">01:16</span>Ask Kemet, the AI companion</button></li>
+          <li><button data-t="106.8"><span class="mono">01:47</span>Draw your own area</button></li>
+          <li><button data-t="119.9"><span class="mono">02:00</span>Save findings and learn the science</button></li>
         </ol>
       </div>
       <figure class="monitor">
         <div class="monitor-frame">
-          <video id="intro-video" src="/static/intro/terrapulse-walkthrough.mp4" poster="/static/intro/terrapulse-walkthrough-poster.jpg"
-                 preload="metadata" playsinline aria-label="TerraPulse platform tour, 3 minutes 31 seconds, narrated, with on-screen captions"></video>
+          <video id="intro-video" src="/static/intro/terrapulse-walkthrough.mp4?v=2" poster="/static/intro/terrapulse-walkthrough-poster.jpg"
+                 preload="metadata" playsinline aria-label="TerraPulse platform tour, 2 minutes 26 seconds, AI-generated narration, with on-screen captions"></video>
           <button class="monitor-start" id="monitor-start"><span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg></span><span>Play the tour</span></button>
         </div>
-        <figcaption class="mono"><span>REC ● TERRAPULSE_PLATFORM_TOUR</span><span>Narrated, with captions · Space plays or pauses</span></figcaption>
+        <figcaption class="mono"><span>REC ● TERRAPULSE_PLATFORM_TOUR</span><span>Narration: AI-generated voice · Captions on · Space plays or pauses</span></figcaption>
       </figure>
     </section>
 
@@ -186,11 +182,11 @@
       <footer class="ld-foot mono">
         <span>TerraPulse · Team EAM²RY 926 · NASA Space Apps Cairo 2026</span>
         <span>Data: NASA MODIS, GPM IMERG, Aura OMI · NOAA GHCN-Daily</span>
+        <span>Kemet illustration created with AI assistance · Tour narration: AI-generated voice</span>
       </footer>
     </section>
   </section>
 
-  <!-- ---------------------------------------------- home -->
   <section class="page home" data-page="home" aria-labelledby="home-h">
     <div class="home-hero">
       <div class="home-greet">
@@ -228,7 +224,6 @@
     </div>
   </section>
 
-  <!-- ---------------------------------------------- explorer + analysis workspace -->
   <section class="page explorer" data-page="explorer" aria-label="Earth Explorer">
     <div class="ex-map" id="map" aria-label="Map"></div>
 
@@ -269,7 +264,6 @@
     </div>
     <p class="ex-hint" id="hint" role="status">Click a dashed region outline or a cell, or draw your own box.</p>
 
-    <!-- variable picker -->
     <div class="var-picker" id="var-picker" role="dialog" aria-modal="false" aria-labelledby="vp-h" hidden>
       <div class="vp-head">
         <p class="mono">Step 1 of 2</p>
@@ -280,7 +274,6 @@
       <p class="vp-foot">Then pick a place on the map. Not sure? <a href="#/home">Try a case file</a>.</p>
     </div>
 
-    <!-- analysis sheet (the analysis workspace) -->
     <aside class="sheet" id="sheet" aria-label="Analysis" data-state="closed">
       <div class="sheet-grip" id="sheet-grip" aria-hidden="true"><i></i></div>
       <header class="sheet-head">
@@ -321,7 +314,6 @@
         <div class="pane" role="tabpanel" id="pane-data" aria-labelledby="tab-data" hidden></div>
         <div class="pane" role="tabpanel" id="pane-science" aria-labelledby="tab-science" hidden></div>
       </div>
-      <!-- contextual AI drawer -->
       <section class="ask-drawer" id="ask-drawer" aria-label="Ask about this result" hidden>
         <header><h3>Ask about this result</h3><button class="icon-btn light" id="ask-close" aria-label="Close questions"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
         <div class="chat" data-chat="drawer"></div>
@@ -329,7 +321,6 @@
     </aside>
   </section>
 
-  <!-- ---------------------------------------------- my analyses -->
   <section class="page analyses" data-page="analyses" aria-labelledby="an-h">
     <header class="page-head day">
       <p class="eyebrow mono">Logbook</p>
@@ -343,7 +334,6 @@
     </div>
   </section>
 
-  <!-- ---------------------------------------------- AI companion -->
   <section class="page companion" data-page="companion" aria-labelledby="co-h">
     <aside class="co-side">
       <div class="co-sami" id="co-sami"></div>
@@ -360,7 +350,6 @@
     </div>
   </section>
 
-  <!-- ---------------------------------------------- learn -->
   <section class="page learn" data-page="learn" aria-labelledby="le-h">
     <header class="page-head day learn-head">
       <p class="eyebrow mono">Field guide</p>
@@ -382,7 +371,6 @@
     </div>
   </section>
 
-  <!-- ---------------------------------------------- settings -->
   <section class="page settings" data-page="settings" aria-labelledby="se-h">
     <header class="page-head day">
       <p class="eyebrow mono">Preferences</p>
@@ -424,7 +412,6 @@
   </section>
 </main>
 
-<!-- ============================================================ Kemet, the guide -->
 <div class="guide" id="guide" hidden>
   <div class="guide-bubble" id="guide-bubble" role="dialog" aria-labelledby="guide-title" hidden>
     <header><b id="guide-title">Kemet</b><span class="mono" id="guide-step"></span>

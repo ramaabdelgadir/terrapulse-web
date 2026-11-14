@@ -1,6 +1,3 @@
-/* Router, sidebar and boot. Hash routes keep the single FastAPI page:
-   #/ landing · #/home · #/explorer · #/analysis (explorer, workspace expanded)
-   #/analyses · #/companion · #/learn · #/settings */
 "use strict";
 
 (function () {
@@ -9,7 +6,6 @@
                    companion: "AI Companion", learn: "Learn & Discover", settings: "Settings" };
   const mobile = () => matchMedia("(max-width: 860px)").matches;
 
-  /* ---------------------------------------------------------------- sidebar */
   function collapse(on) {
     document.body.classList.toggle("sb-collapsed", on);
     $("#sb-collapse").setAttribute("aria-pressed", on);
@@ -30,7 +26,6 @@
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && document.body.classList.contains("drawer-open")) { drawer(false); $("#drawer-open").focus(); } });
   collapse(!!Prefs.get("sidebarCollapsed"));
 
-  /* in-page scroll links that must not change the route */
   document.addEventListener("click", (e) => {
     const a = e.target.closest("[data-scroll]");
     if (!a) return;
@@ -39,7 +34,6 @@
     if (t) t.scrollIntoView({ behavior: Prefs.get("reduceMotion") ? "auto" : "smooth", block: "start" });
   });
 
-  /* ---------------------------------------------------------------- router */
   function parse() {
     const h = location.hash.replace(/^#\/?/, "").split(/[/?]/)[0];
     return ROUTES.includes(h) ? h : h === "" ? "landing" : "home";
@@ -73,7 +67,6 @@
   }
   addEventListener("hashchange", () => show(parse()));
 
-  /* ---------------------------------------------------------------- preferences that affect the shell */
   const applyMotion = () => document.body.classList.toggle("calm", !!Prefs.get("reduceMotion"));
   applyMotion();
   Bus.on("pref", ({ k, val }) => {
@@ -81,9 +74,8 @@
     if (k === "sidebarCollapsed") collapse(val);
   });
 
-  /* ---------------------------------------------------------------- boot */
   (async function boot() {
-    show(parse());                        // paint the shell at once
+    show(parse());
     try { state.meta = await api("/api/meta"); }
     catch (e) {
       $("#sb-status").classList.add("bad");

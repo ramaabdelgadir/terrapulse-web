@@ -1,7 +1,5 @@
-/* ------------------------------------------------------------------ Earth Explorer (night) + analysis sheet (day) */
 .ex-map { position: absolute; inset: 0; z-index: 0; transition: right .3s var(--ease); }
 .leaflet-container { background: #263b42; font-family: var(--ui); }
-/* cartographic fallback when there is no imagery (offline, or "Night" base map): a graticule */
 .ex-map[data-base="dark"], .ex-map.leaflet-container { background-color: #263b42;
   background-image: linear-gradient(rgba(124, 198, 214, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(124, 198, 214, .08) 1px, transparent 1px),
                     radial-gradient(ellipse at 40% 40%, #2c444b, #1a2a30 70%);
@@ -52,7 +50,6 @@ body[data-sheet="open"] .ex-top { right: calc(var(--sheet-w) + 66px); }
 .ex-hint { position: absolute; z-index: 450; left: 16px; top: 142px; margin: 0; padding: 7px 14px; border-radius: 12px; font-size: 12.5px; color: var(--dim); max-width: min(420px, calc(100% - 32px)); }
 .ex-hint::before { content: "→ "; color: var(--magenta); }
 
-/* Leaflet, restyled to match */
 .leaflet-bar { border: 1px solid var(--glass-line-2) !important; border-radius: 12px !important; overflow: hidden; box-shadow: 0 10px 30px -10px rgba(8, 18, 22, .8) !important; }
 .leaflet-bar a { background: var(--glass) !important; color: var(--star) !important; border-bottom-color: var(--glass-line) !important; width: 36px !important; height: 36px !important; line-height: 36px !important; }
 .leaflet-bar a:hover { background: var(--night-3) !important; }
@@ -73,7 +70,6 @@ body[data-sheet="open"] .ex-top { right: calc(var(--sheet-w) + 66px); }
 .leaflet-tooltip.reg::before { display: none; }
 .leaflet-tooltip { font-family: var(--ui); border-radius: 8px; }
 
-/* ------------------------------------------------------------------ variable picker */
 .var-picker { position: absolute; z-index: 700; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(820px, calc(100% - 32px)); max-height: calc(100% - 40px); overflow-y: auto;
               border-radius: 26px; padding: 28px 28px 22px; animation: pop .35s var(--ease); }
 body[data-sheet="open"] .var-picker { left: calc((100% - var(--sheet-w)) / 2); width: min(720px, calc(100% - var(--sheet-w) - 32px)); }
@@ -97,7 +93,6 @@ body[data-sheet="open"] .var-picker { left: calc((100% - var(--sheet-w)) / 2); w
 .vp-foot { margin: 16px 2px 0; color: var(--dim); font-size: 14px; }
 .vp-foot a { color: var(--cyan); }
 
-/* ------------------------------------------------------------------ the analysis sheet (day) */
 .sheet { position: absolute; z-index: 800; top: 0; right: 0; bottom: 0; width: var(--sheet-w); display: flex; flex-direction: column; background: #22363c; color: var(--ink);
          border-left: 1px solid var(--rule); box-shadow: -30px 0 60px -30px rgba(8, 18, 22, .5); transform: translateX(102%); transition: transform .35s var(--ease), width .35s var(--ease); }
 .sheet::before { content: ""; position: absolute; left: -1px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #7FBF86, #e8c26e 50%, #7cc6d6); opacity: .9; }
@@ -192,7 +187,6 @@ body[data-sheet="open"] .var-picker { left: calc((100% - var(--sheet-w)) / 2); w
 .trust p, .trust li { font-size: 14px; color: var(--ink-2); }
 .trust img { border-radius: 10px; border: 1px solid var(--rule); margin: 8px 0; }
 
-/* contextual AI drawer inside the sheet */
 .ask-drawer { position: absolute; left: 0; right: 0; bottom: 0; height: min(72%, 620px); display: flex; flex-direction: column; background: var(--day-1);
               border-radius: 24px 24px 0 0; box-shadow: 0 -24px 60px -20px rgba(5, 15, 18, .35); border-top: 1px solid var(--rule); animation: up .35s var(--ease); z-index: 5; }
 @keyframes up { from { transform: translateY(40px); opacity: 0; } }
@@ -200,7 +194,6 @@ body[data-sheet="open"] .var-picker { left: calc((100% - var(--sheet-w)) / 2); w
 .ask-drawer h3 { font-size: 17px; font-weight: 500; }
 .ask-drawer .chat { flex: 1; padding: 0 18px 16px; gap: 12px; }
 .ask-drawer .msgs { flex: 1; min-height: 90px; padding: 4px 4px 4px 0; }
-/* the drawer is small: suggestions scroll sideways in one row so the answer and the text box always stay visible */
 .ask-drawer .chat-suggest { flex-wrap: nowrap; overflow-x: auto; flex-shrink: 0; padding-bottom: 4px; scrollbar-width: thin; }
 .ask-drawer .chat-suggest button { flex: 0 0 auto; white-space: nowrap; }
 .ask-drawer .chat-ctx, .ask-drawer .chat-form, .ask-drawer .chat-lang { flex-shrink: 0; }
@@ -216,7 +209,6 @@ body[data-sheet="open"] .var-picker { left: calc((100% - var(--sheet-w)) / 2); w
 .chat-lang button { color: var(--ink-3); }
 .chat-lang button.on { background: var(--magenta); color: #10241c; }
 
-/* ------------------------------------------------------------------ expanded analysis workspace */
 .sheet[data-state="expanded"] { width: 100%; border-left: 0; }
 .sheet[data-state="expanded"] .sheet-body { display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); gap: 0 clamp(28px, 4vw, 64px); padding: 30px clamp(26px, 4vw, 60px) 120px; align-content: start; }
 .sheet[data-state="expanded"] #pane-overview { display: block !important; grid-column: 1; grid-row: 1 / span 5; position: sticky; top: 0; align-self: start; }
@@ -230,11 +222,9 @@ body[data-sheet="open"] .var-picker { left: calc((100% - var(--sheet-w)) / 2); w
 .sheet[data-state="expanded"] .ask-drawer { left: auto; width: min(520px, 100%); right: 20px; border-radius: 24px 24px 0 0; }
 body[data-sheet="expanded"] .ex-top, body[data-sheet="expanded"] .ex-tools, body[data-sheet="expanded"] .ex-hint { visibility: hidden; }
 
-/* the guide moves aside so it never covers the sheet's controls; while chatting, the chat itself is Kemet */
 body.asking .guide { display: none; }
 body[data-route="explorer"][data-sheet="open"] .guide { right: calc(var(--sheet-w) + 22px); }
 
-/* ------------------------------------------------------------------ explorer, mobile */
 @media (max-width: 1100px) { :root { --sheet-w: min(440px, 46vw); } }
 @media (max-width: 860px) {
   :root { --sheet-w: 100%; }
@@ -270,10 +260,8 @@ body[data-route="explorer"][data-sheet="open"] .guide { right: calc(var(--sheet-
   body[data-route="explorer"][data-sheet="peek"] .guide { bottom: 170px; }
 }
 
-/* while drawing a box, the canvas of grid cells must not take the mouse away from the box tool */
 #map.drawing .leaflet-overlay-pane, #map.drawing .leaflet-overlay-pane * { pointer-events: none !important; }
 
-/* the chat takes the whole result panel while it is open, and the panel widens a little (desktop) */
 @media (min-width: 861px) {
   body.asking { --sheet-w: min(600px, 48vw); }
   .ask-drawer { top: 0; height: auto; border-radius: 0; border-top: 0; box-shadow: none; }
@@ -283,9 +271,8 @@ body[data-route="explorer"][data-sheet="open"] .guide { right: calc(var(--sheet-
   .ask-drawer .msg { max-width: 96%; }
   .ask-drawer .msg .bubble { font-size: 15.5px; line-height: 1.6; }
   .ask-drawer .chat-form input { font-size: 15.5px; }
-  .ask-drawer .chat-suggest { flex-wrap: wrap; overflow: visible; }   /* no hidden questions without a scrollbar */
+  .ask-drawer .chat-suggest { flex-wrap: wrap; overflow: visible; }
 }
 
-/* selected place and drawn box: a thin dark edge plus a soft aqua glow so the outline reads on any background */
 .leaflet-overlay-pane path.sel-glow { filter: drop-shadow(0 0 1.5px rgba(4, 30, 36, .95)) drop-shadow(0 0 6px rgba(92, 242, 255, .65)); }
 .leaflet-tooltip.reg.on { background: #5cf2ff; color: #06262c; border-color: #5cf2ff; }
