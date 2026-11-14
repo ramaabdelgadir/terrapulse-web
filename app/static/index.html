@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TerraPulse — Explore Earth, one discovery at a time</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2712%27 fill=%27%23142a6b%27/%3E%3Cpath d=%27M5 17h6l2-5 3 9 3-7 2 3h6%27 fill=%27none%27 stroke=%27%235ee0ff%27 stroke-width=%272.4%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<meta name="description" content="Explore Earth's environmental changes through NASA satellite observations, interactive maps and easy-to-understand statistical evidence.">
+<meta name="theme-color" content="#1d2d33">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="/static/vendor/leaflet-draw/leaflet.draw.css">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/landing.css">
+<link rel="stylesheet" href="/static/css/explorer.css">
+<link rel="stylesheet" href="/static/css/pages.css">
+</head>
+<body data-route="landing">
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ============================================================ mobile top bar -->
+<header class="topbar" aria-label="TerraPulse">
+  <button class="icon-btn" id="drawer-open" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h16"/></svg>
+  </button>
+  <a class="wordmark small" href="#/" aria-label="TerraPulse, introduction">Terra<span>Pulse</span></a>
+  <span class="topbar-page" id="topbar-page"></span>
+</header>
+
+<!-- ============================================================ sidebar -->
+<nav class="sidebar" id="sidebar" aria-label="Main navigation">
+  <div class="sb-head">
+    <a class="sb-brand" href="#/" aria-label="TerraPulse introduction">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
+        <defs><linearGradient id="mk-g" x1="0" x2="1"><stop offset="0" stop-color="#7FBF86"/><stop offset=".55" stop-color="#e8c26e"/><stop offset="1" stop-color="#7cc6d6"/></linearGradient>
+        <radialGradient id="mk-e" cx=".35" cy=".3"><stop offset="0" stop-color="#7cc6d6"/><stop offset="1" stop-color="#2f6f6a"/></radialGradient></defs>
+        <circle cx="20" cy="20" r="10.5" fill="url(#mk-e)"/>
+        <path d="M11 21.5h4l2-4.5 3 8 2.2-5 1.4 1.5H29" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/>
+        <ellipse cx="20" cy="20" rx="18" ry="6" fill="none" stroke="url(#mk-g)" stroke-width="1.6" transform="rotate(-18 20 20)"/>
+      </svg>
+      <span class="wordmark">Terra<span>Pulse</span></span>
+    </a>
+    <button class="icon-btn sb-collapse" id="sb-collapse" aria-label="Collapse sidebar" aria-pressed="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <button class="icon-btn sb-close" id="drawer-close" aria-label="Close navigation">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <div class="sb-scroll">
+    <p class="sb-group">Explore</p>
+    <ul>
+      <li><a href="#/home" data-nav="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5"/><path d="M6.5 10v9h11v-9"/><circle cx="12" cy="14.5" r="1.8"/></svg><span>Home</span></a></li>
+      <li><a href="#/explorer" data-nav="explorer"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="M4.5 12h15M12 4.5c2.3 2.2 3.4 4.7 3.4 7.5s-1.1 5.3-3.4 7.5c-2.3-2.2-3.4-4.7-3.4-7.5s1.1-5.3 3.4-7.5z"/></svg><span>Earth Explorer</span></a></li>
+      <li><a href="#/analyses" data-nav="analyses"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5h9l3 3v12H6z"/><path d="M9 15l2-2.5 2 1.5 2.5-3.5"/></svg><span>My Analyses</span><b class="sb-count" id="sb-count" hidden></b></a></li>
+    </ul>
+    <p class="sb-group">Learn &amp; discover</p>
+    <ul>
+      <li><a href="#/companion" data-nav="companion"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14v9H11l-4 3v-3H5z"/><path d="M9 11h.01M12 11h.01M15 11h.01"/></svg><span>AI Companion</span></a></li>
+      <li><a href="#/learn" data-nav="learn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5c-2-1.3-4.7-1.6-7.5-1v12c2.8-.6 5.5-.3 7.5 1 2-1.3 4.7-1.6 7.5-1v-12c-2.8-.6-5.5-.3-7.5 1z"/><path d="M12 6.5v12"/></svg><span>Learn &amp; Discover</span></a></li>
+    </ul>
+    <p class="sb-group">Preferences</p>
+    <ul>
+      <li><a href="#/settings" data-nav="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.6"/><path d="M12 3.8v2.4M12 17.8v2.4M3.8 12h2.4M17.8 12h2.4M6.2 6.2l1.7 1.7M16.1 16.1l1.7 1.7M6.2 17.8l1.7-1.7M16.1 7.9l1.7-1.7"/></svg><span>Settings</span></a></li>
+    </ul>
+  </div>
+
+  <div class="sb-foot">
+    <div class="sb-status" id="sb-status" title="Data status">
+      <i class="dot"></i><span id="sb-status-text">Connecting to the pipeline…</span>
+    </div>
+    <p class="sb-coords mono" aria-hidden="true">30.04°N · 31.24°E</p>
+  </div>
+</nav>
+<div class="scrim" id="scrim" hidden></div>
+
+<!-- ============================================================ pages -->
+<main id="main" tabindex="-1">
+
+  <!-- ---------------------------------------------- landing -->
+  <section class="page landing" data-page="landing" aria-label="Introduction">
+    <div class="ld-hero">
+      <canvas class="ld-globe" id="globe" aria-hidden="true"></canvas>
+      <div class="ld-stars" aria-hidden="true"></div>
+      <svg class="ld-orbit" viewBox="0 0 1200 600" aria-hidden="true" preserveAspectRatio="none">
+        <defs><linearGradient id="orb-g" x1="0" x2="1"><stop offset="0" stop-color="#7FBF86" stop-opacity="0"/><stop offset=".35" stop-color="#7FBF86"/><stop offset=".7" stop-color="#e8c26e"/><stop offset="1" stop-color="#7cc6d6"/></linearGradient></defs>
+        <ellipse cx="760" cy="440" rx="620" ry="120" fill="none" stroke="url(#orb-g)" stroke-width="1.5" transform="rotate(-9 760 440)"/>
+      </svg>
+      <div class="ld-hero-copy">
+        <p class="eyebrow mono"><span class="pulse-dot"></span> NASA Space Apps 2026 · Earth System Trend Detective</p>
+        <h1 class="ld-title"><span class="l1">Our planet is always changing.</span> <span class="l2">Let’s discover <em>how</em>.</span></h1>
+        <p class="ld-lead">Explore Earth’s environmental changes through satellite observations, interactive maps, and easy-to-understand scientific insights.</p>
+        <div class="ld-actions">
+          <a class="btn btn-glow" href="#/explorer">Start exploring <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="#briefing" data-scroll="briefing"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg> Watch the platform tour</a>
+        </div>
+      </div>
+      <div class="ld-sami" id="ld-sami"></div>
+      <div class="ld-telemetry mono" aria-hidden="true">
+        <span>LAT 30.04°N</span><span>LON 31.24°E</span><span>TARGET · NILE DELTA</span><span id="ld-clock">UTC --:--</span>
+      </div>
+      <a class="ld-scroll mono" href="#briefing" data-scroll="briefing">scroll <i></i></a>
+    </div>
+
+    <section class="ld-briefing" id="briefing" aria-labelledby="briefing-h">
+      <div class="ld-briefing-copy">
+        <p class="eyebrow mono">01 · Platform tour</p>
+        <h2 id="briefing-h">A walk inside TerraPulse.</h2>
+        <p>A real walk through the platform: choose a measurement, pick a place, read the verdict, compare places, check the evidence, ask Kemet, and save what you find. It is a screen recording of the live site working on real NASA data.</p>
+        <ol class="chapters" id="chapters">
+          <li><button data-t="0"><span class="mono">00:00</span>What TerraPulse is</button></li>
+          <li><button data-t="23.7"><span class="mono">00:24</span>Choose what to explore</button></li>
+          <li><button data-t="54.9"><span class="mono">00:55</span>Pick a place, read the verdict</button></li>
+          <li><button data-t="77.5"><span class="mono">01:17</span>Compare places and check the evidence</button></li>
+          <li><button data-t="97.5"><span class="mono">01:37</span>Ask Kemet, the AI companion</button></li>
+          <li><button data-t="152.5"><span class="mono">02:32</span>Draw your own area</button></li>
+          <li><button data-t="179.9"><span class="mono">03:00</span>Save findings and learn the science</button></li>
+        </ol>
+      </div>
+      <figure class="monitor">
+        <div class="monitor-frame">
+          <video id="intro-video" src="/static/intro/terrapulse-walkthrough.mp4" poster="/static/intro/terrapulse-walkthrough-poster.jpg"
+                 preload="metadata" playsinline aria-label="TerraPulse platform tour, 3 minutes 31 seconds, narrated, with on-screen captions"></video>
+          <button class="monitor-start" id="monitor-start"><span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg></span><span>Play the tour</span></button>
+        </div>
+        <figcaption class="mono"><span>REC ● TERRAPULSE_PLATFORM_TOUR</span><span>Narrated, with captions · Space plays or pauses</span></figcaption>
+      </figure>
+    </section>
+
+    <section class="ld-explore" aria-labelledby="explore-h">
+      <header class="ld-sec-head">
+        <p class="eyebrow mono">02 · Instruments on board</p>
+        <h2 id="explore-h">What can you explore?</h2>
+        <p>Five measurements: four from NASA satellites, one from a thermometer on the ground that keeps the satellites honest. Each colour pair is the one the map uses for “less” and “more”.</p>
+      </header>
+      <ol class="instruments" id="instruments"><li class="loading-row"><span class="pulse-loader"></span></li></ol>
+    </section>
+
+    <section class="ld-how" aria-labelledby="how-h">
+      <div class="dawn-edge" aria-hidden="true"></div>
+      <header class="ld-sec-head day">
+        <p class="eyebrow mono">03 · Method</p>
+        <h2 id="how-h">How does TerraPulse work?</h2>
+      </header>
+      <ol class="how-steps">
+        <li>
+          <div class="how-ill" data-ill="choose"></div>
+          <span class="how-n mono">01</span>
+          <h3>Choose what to explore</h3>
+          <p>Pick a measurement and a place: a preset region, a single map cell, or a box you draw yourself.</p>
+        </li>
+        <li>
+          <div class="how-ill" data-ill="investigate"></div>
+          <span class="how-n mono">02</span>
+          <h3>Investigate the observations</h3>
+          <p>TerraPulse builds the monthly time series from cleaned NASA data and tests it with the seasonal Mann-Kendall test, so the yearly cycle can’t fake a trend.</p>
+        </li>
+        <li>
+          <div class="how-ill" data-ill="understand"></div>
+          <span class="how-n mono">03</span>
+          <h3>Understand the evidence</h3>
+          <p>You get a plain-language verdict, the rate of change with its 95% range, and an honest label when the evidence isn’t strong enough.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="ld-discover" aria-labelledby="disc-h">
+      <header class="ld-sec-head day">
+        <p class="eyebrow mono">04 · Field notes · computed live by the pipeline</p>
+        <h2 id="disc-h">Real discoveries</h2>
+        <p>These are not illustrations. Each note below is requested from the TerraPulse service as the page loads, including the ones where the evidence falls short.</p>
+      </header>
+      <div class="discoveries" id="discoveries"><div class="loading-row"><span class="pulse-loader"></span> Asking the pipeline…</div></div>
+    </section>
+
+    <section class="ld-final" aria-labelledby="final-h">
+      <div class="ld-final-copy">
+        <h2 id="final-h">Pick a place. Ask a question. <em>Let the data answer.</em></h2>
+        <a class="btn btn-glow" href="#/explorer">Enter the Earth Explorer <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn btn-ghost" href="#/home">Or see the mission board</a>
+      </div>
+      <div class="ld-final-sami" id="ld-final-sami"></div>
+      <footer class="ld-foot mono">
+        <span>TerraPulse · Team EAM²RY 926 · NASA Space Apps Cairo 2026</span>
+        <span>Data: NASA MODIS, GPM IMERG, Aura OMI · NOAA GHCN-Daily</span>
+      </footer>
+    </section>
+  </section>
+
+  <!-- ---------------------------------------------- home -->
+  <section class="page home" data-page="home" aria-labelledby="home-h">
+    <div class="home-hero">
+      <div class="home-greet">
+        <p class="eyebrow mono" id="home-date"></p>
+        <h1 id="home-h"><span id="home-hello">Welcome back, explorer.</span><br><em>Where shall we look today?</em></h1>
+        <p class="home-lead">Open a case file to jump straight to a real investigation, or head to the Earth Explorer and choose your own place.</p>
+        <div class="home-actions">
+          <a class="btn btn-glow" href="#/explorer">Open the Earth Explorer</a>
+          <button class="btn btn-ghost" id="home-resume" hidden>Resume: <span></span></button>
+        </div>
+      </div>
+      <div class="home-sami" id="home-sami"></div>
+    </div>
+    <div class="home-grid">
+      <section class="casefiles" aria-labelledby="cf-h">
+        <header><h2 id="cf-h">Case files</h2><p>Ready-made investigations, each one a real question about a real place.</p></header>
+        <ol class="cases" id="cases"></ol>
+      </section>
+      <aside class="home-side">
+        <section class="board" aria-labelledby="board-h">
+          <h2 id="board-h" class="mono">Data on board</h2>
+          <ul id="board-list"></ul>
+        </section>
+        <section class="board recent" aria-labelledby="recent-h">
+          <h2 id="recent-h" class="mono">Your recent findings</h2>
+          <ul id="recent-list"></ul>
+          <a href="#/analyses" class="link">Open My Analyses →</a>
+        </section>
+        <a class="learn-teaser" href="#/learn">
+          <span class="mono">New to trends?</span>
+          <b>What “statistically significant” really means</b>
+          <span>A five-minute guide in Learn &amp; Discover →</span>
+        </a>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------- explorer + analysis workspace -->
+  <section class="page explorer" data-page="explorer" aria-label="Earth Explorer">
+    <div class="ex-map" id="map" aria-label="Map"></div>
+
+    <div class="ex-top">
+      <button class="var-pill" id="var-pill" aria-haspopup="dialog" aria-expanded="false" aria-controls="var-picker">
+        <span class="var-glyph" id="var-pill-glyph"></span>
+        <span class="var-pill-text"><small class="mono">Exploring</small><b id="var-pill-label">Choose a measurement</b></span>
+        <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="place-pill" id="place-pill" hidden>
+        <label for="region-select" class="mono">Place</label>
+        <select id="region-select"></select>
+      </div>
+      <span class="demo-flag mono" id="demo" hidden title="These results come from simulated data with known trends, used to test the pipeline.">Demonstration data</span>
+    </div>
+
+    <div class="ex-tools" role="toolbar" aria-label="Map tools">
+      <button class="tool" id="tool-regions" aria-expanded="false" aria-controls="regions-pop" title="Preset regions">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5l5-2 6 2 5-2v13l-5 2-6-2-5 2z"/><path d="M9 4.5v13M15 6.5v13"/></svg><span>Regions</span></button>
+      <button class="tool" id="draw" title="Draw your own box on the map">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h3M11 5h2M16 5h3v3M19 11v2M19 16v3h-3M13 19h-2M8 19H5v-3M5 13v-2M5 8V5"/></svg><span>Draw a box</span></button>
+      <div class="tool-seg" role="group" aria-label="Colour the map by">
+        <button id="mode-verdict" class="on" aria-pressed="true" title="Colour cells by verdict">Verdict</button>
+        <button id="mode-rate" aria-pressed="false" title="Colour cells by rate of change">Rate</button>
+      </div>
+      <button class="tool" id="tool-layers" aria-expanded="false" aria-controls="layers-pop" title="Base map and labels">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l8 4.5-8 4.5-8-4.5z"/><path d="M4 12.5l8 4.5 8-4.5M4 16.5l8 4.5 8-4.5"/></svg><span>Layers</span></button>
+    </div>
+    <div class="pop" id="regions-pop" hidden><p class="mono">Preset regions</p><ul id="regions-list"></ul></div>
+    <div class="pop" id="layers-pop" hidden>
+      <p class="mono">Base map</p>
+      <label><input type="radio" name="base" value="imagery" checked> Satellite imagery</label>
+      <label><input type="radio" name="base" value="streets"> Streets</label>
+      <label><input type="radio" name="base" value="dark"> Night (no imagery)</label>
+      <p class="mono">Overlays</p>
+      <label><input type="checkbox" id="lyr-labels" checked> Place names</label>
+      <label><input type="checkbox" id="lyr-cells" checked> Trend cells</label>
+    </div>
+    <p class="ex-hint" id="hint" role="status">Click a dashed region outline or a cell, or draw your own box.</p>
+
+    <!-- variable picker -->
+    <div class="var-picker" id="var-picker" role="dialog" aria-modal="false" aria-labelledby="vp-h" hidden>
+      <div class="vp-head">
+        <p class="mono">Step 1 of 2</p>
+        <h2 id="vp-h">What do you want to explore?</h2>
+        <button class="icon-btn" id="vp-close" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      <ul class="vp-list" id="vp-list"></ul>
+      <p class="vp-foot">Then pick a place on the map. Not sure? <a href="#/home">Try a case file</a>.</p>
+    </div>
+
+    <!-- analysis sheet (the analysis workspace) -->
+    <aside class="sheet" id="sheet" aria-label="Analysis" data-state="closed">
+      <div class="sheet-grip" id="sheet-grip" aria-hidden="true"><i></i></div>
+      <header class="sheet-head">
+        <div class="sheet-where">
+          <p class="mono" id="kind"></p>
+          <p class="sheet-place" id="sheet-place"></p>
+        </div>
+        <div class="sheet-actions">
+          <button class="icon-btn light" id="save-analysis" title="Save to My Analyses" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5h10v15l-5-3.5-5 3.5z"/></svg><span class="sr">Save to My Analyses</span></button>
+          <button class="icon-btn light" id="ask-open" title="Ask about this result">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14v9H11l-4 3v-3H5z"/></svg><span class="sr">Ask about this result</span></button>
+          <button class="icon-btn light" id="expand" title="Expand the analysis workspace" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5h5v5M10 19H5v-5M19 5l-6 6M5 19l6-6"/></svg><span class="sr">Expand analysis</span></button>
+          <button class="icon-btn light" id="sheet-close" title="Close the analysis">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="sr">Close analysis</span></button>
+        </div>
+      </header>
+      <nav class="tabs" role="tablist" aria-label="Analysis sections">
+        <button role="tab" id="tab-overview" aria-controls="pane-overview" aria-selected="true">Overview</button>
+        <button role="tab" id="tab-trend" aria-controls="pane-trend" aria-selected="false" tabindex="-1">Trend</button>
+        <button role="tab" id="tab-evidence" aria-controls="pane-evidence" aria-selected="false" tabindex="-1">Evidence</button>
+        <button role="tab" id="tab-data" aria-controls="pane-data" aria-selected="false" tabindex="-1">Data</button>
+        <button role="tab" id="tab-science" aria-controls="pane-science" aria-selected="false" tabindex="-1">Science</button>
+      </nav>
+      <div class="sheet-body" id="sheet-body">
+        <div class="pane" role="tabpanel" id="pane-overview" aria-labelledby="tab-overview"></div>
+        <div class="pane" role="tabpanel" id="pane-trend" aria-labelledby="tab-trend" hidden>
+          <div class="chart-head">
+            <h3 id="chart-title">Over time</h3>
+            <div class="compare"><label for="compare-select">Compare with</label><select id="compare-select"><option value="">nothing</option></select></div>
+          </div>
+          <div id="chart" class="chart" role="img" aria-label="Time series chart"></div>
+          <p class="chart-note" id="chart-note"></p>
+          <div id="trend-facts"></div>
+        </div>
+        <div class="pane" role="tabpanel" id="pane-evidence" aria-labelledby="tab-evidence" hidden></div>
+        <div class="pane" role="tabpanel" id="pane-data" aria-labelledby="tab-data" hidden></div>
+        <div class="pane" role="tabpanel" id="pane-science" aria-labelledby="tab-science" hidden></div>
+      </div>
+      <!-- contextual AI drawer -->
+      <section class="ask-drawer" id="ask-drawer" aria-label="Ask about this result" hidden>
+        <header><h3>Ask about this result</h3><button class="icon-btn light" id="ask-close" aria-label="Close questions"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+        <div class="chat" data-chat="drawer"></div>
+      </section>
+    </aside>
+  </section>
+
+  <!-- ---------------------------------------------- my analyses -->
+  <section class="page analyses" data-page="analyses" aria-labelledby="an-h">
+    <header class="page-head day">
+      <p class="eyebrow mono">Logbook</p>
+      <h1 id="an-h">My Analyses</h1>
+      <p>Findings you saved, and the ones you looked at recently. Opening one asks the pipeline again, so you always see the current result.</p>
+    </header>
+    <div class="logbook">
+      <section aria-labelledby="saved-h"><h2 id="saved-h" class="mono">Saved</h2><ol class="log" id="saved-list"></ol></section>
+      <section aria-labelledby="hist-h"><h2 id="hist-h" class="mono">Recently viewed</h2><ol class="log" id="history-list"></ol>
+        <button class="btn btn-quiet" id="clear-history">Clear history</button></section>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------- AI companion -->
+  <section class="page companion" data-page="companion" aria-labelledby="co-h">
+    <aside class="co-side">
+      <div class="co-sami" id="co-sami"></div>
+      <h1 id="co-h">AI Companion</h1>
+      <p>Ask about any finding in plain words, in English or Arabic. The companion only sees the numbers TerraPulse computed, so it can’t invent data, and it never states causes as findings.</p>
+      <div class="co-context" id="co-context"></div>
+      <div class="seg" role="group" aria-label="Answer language">
+        <button data-lang="en" class="on" aria-pressed="true">English</button>
+        <button data-lang="ar" aria-pressed="false" lang="ar">عربي</button>
+      </div>
+    </aside>
+    <div class="co-main">
+      <div class="chat big" data-chat="page"></div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------- learn -->
+  <section class="page learn" data-page="learn" aria-labelledby="le-h">
+    <header class="page-head day learn-head">
+      <p class="eyebrow mono">Field guide</p>
+      <h1 id="le-h">Learn &amp; Discover</h1>
+      <p>Everything you need to read a TerraPulse result with confidence: what each measurement is, how a trend is tested, and what the words on screen mean.</p>
+    </header>
+    <div class="learn-body">
+      <nav class="toc" aria-label="On this page">
+        <a href="#l-vars" data-scroll="l-vars">The measurements</a>
+        <a href="#l-trend" data-scroll="l-trend">Trend or noise?</a>
+        <a href="#l-sig" data-scroll="l-sig">Significance</a>
+        <a href="#l-range" data-scroll="l-range">The 95% range</a>
+        <a href="#l-verdicts" data-scroll="l-verdicts">The verdicts</a>
+        <a href="#l-pipeline" data-scroll="l-pipeline">The pipeline</a>
+        <a href="#l-trust" data-scroll="l-trust">How we know it’s right</a>
+        <a href="#l-glossary" data-scroll="l-glossary">Glossary</a>
+      </nav>
+      <div class="learn-content" id="learn-content"></div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------- settings -->
+  <section class="page settings" data-page="settings" aria-labelledby="se-h">
+    <header class="page-head day">
+      <p class="eyebrow mono">Preferences</p>
+      <h1 id="se-h">Settings</h1>
+      <p>Saved in this browser only.</p>
+    </header>
+    <form class="settings-form" id="settings-form" onsubmit="return false">
+      <fieldset><legend>Your guide</legend>
+        <label class="switch"><input type="checkbox" name="guide"><span></span>Show Kemet, the guide</label>
+        <label class="switch"><input type="checkbox" name="nudges"><span></span>Let Kemet offer tips when something new appears</label>
+        <button type="button" class="btn btn-quiet" id="replay-tour">Replay the welcome tour</button>
+      </fieldset>
+      <fieldset><legend>Map</legend>
+        <p class="field-label">Colour trend cells by</p>
+        <label class="radio"><input type="radio" name="mapMode" value="verdict"> Verdict (is the trend confirmed?)</label>
+        <label class="radio"><input type="radio" name="mapMode" value="rate"> Rate (how fast is it changing?)</label>
+        <p class="field-label">Base map</p>
+        <label class="radio"><input type="radio" name="base" value="imagery"> Satellite imagery</label>
+        <label class="radio"><input type="radio" name="base" value="streets"> Streets</label>
+        <label class="radio"><input type="radio" name="base" value="dark"> Night (no imagery, works offline)</label>
+      </fieldset>
+      <fieldset><legend>AI Companion</legend>
+        <p class="field-label">Answer language</p>
+        <label class="radio"><input type="radio" name="lang" value="en"> English</label>
+        <label class="radio"><input type="radio" name="lang" value="ar"> <span lang="ar">العربية</span> (Arabic)</label>
+      </fieldset>
+      <fieldset><legend>Interface</legend>
+        <label class="switch"><input type="checkbox" name="reduceMotion"><span></span>Reduce motion (stops the spinning globe and animations)</label>
+        <label class="switch"><input type="checkbox" name="sidebarCollapsed"><span></span>Start with the sidebar collapsed</label>
+      </fieldset>
+      <fieldset><legend>Your data</legend>
+        <p class="field-help">Saved analyses and history live only in this browser.</p>
+        <button type="button" class="btn btn-quiet danger" id="clear-all">Delete saved analyses and history</button>
+      </fieldset>
+      <fieldset class="about"><legend>About this build</legend>
+        <dl id="about-list"></dl>
+      </fieldset>
+    </form>
+  </section>
+</main>
+
+<!-- ============================================================ Kemet, the guide -->
+<div class="guide" id="guide" hidden>
+  <div class="guide-bubble" id="guide-bubble" role="dialog" aria-labelledby="guide-title" hidden>
+    <header><b id="guide-title">Kemet</b><span class="mono" id="guide-step"></span>
+      <button class="icon-btn light" id="guide-close" aria-label="Close the guide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+    <div class="guide-text" id="guide-text" aria-live="polite"></div>
+    <div class="guide-terms" id="guide-terms"></div>
+    <footer id="guide-foot"></footer>
+  </div>
+  <button class="guide-dock" id="guide-dock" aria-label="Ask Kemet, your guide" aria-expanded="false" aria-controls="guide-bubble">
+    <span class="guide-face" id="guide-face"></span>
+    <span class="guide-ping" id="guide-ping" hidden></span>
+  </button>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="/static/vendor/leaflet/leaflet.js"></script>
+<script src="/static/vendor/leaflet-draw/leaflet.draw.js"></script>
+<script src="/static/vendor/plotly.min.js"></script>
+<script src="/static/js/core.js"></script>
+<script src="/static/js/sami.js"></script>
+<script src="/static/js/globe.js"></script>
+<script src="/static/js/explorer.js"></script>
+<script src="/static/js/analysis.js"></script>
+<script src="/static/js/chat.js"></script>
+<script src="/static/js/guide.js"></script>
+<script src="/static/js/pages.js"></script>
+<script src="/static/js/landing.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

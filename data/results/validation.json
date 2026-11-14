@@ -1,0 +1,120 @@
+{
+ "answer_key": {
+  "ndvi_pixels": {
+   "planted_trend_pixels": 28,
+   "found_correctly": 28,
+   "missed": 0,
+   "false_alarms": 1,
+   "no_trend_pixels": 89
+  },
+  "regions": [
+   {
+    "check": "NDVI New Delta",
+    "planted": 0.012,
+    "estimated": 0.012,
+    "ci95": [
+     0.0115,
+     0.0125
+    ],
+    "planted_inside_ci": true
+   },
+   {
+    "check": "NDVI Greater Cairo",
+    "planted": -0.008,
+    "estimated": -0.0079,
+    "ci95": [
+     -0.0092,
+     -0.0066
+    ],
+    "planted_inside_ci": true
+   },
+   {
+    "check": "LST Greater Cairo (\u00b0C/yr)",
+    "planted": 0.07,
+    "estimated": 0.061,
+    "ci95": [
+     0.0386,
+     0.0818
+    ],
+    "planted_inside_ci": true
+   },
+   {
+    "check": "LST North coast (\u00b0C/yr)",
+    "planted": 0.04,
+    "estimated": 0.0352,
+    "ci95": [
+     0.021,
+     0.0491
+    ],
+    "planted_inside_ci": true
+   },
+   {
+    "check": "Cairo air temp (\u00b0C/yr)",
+    "planted": 0.045,
+    "estimated": 0.0483,
+    "ci95": [
+     0.0268,
+     0.0691
+    ],
+    "planted_inside_ci": true
+   },
+   {
+    "check": "Groundwater excl. jump (cm/yr)",
+    "planted": -0.6,
+    "estimated": -0.5941,
+    "ci95": [
+     -0.9256,
+     -0.6021
+    ],
+    "planted_inside_ci": null
+   }
+  ],
+  "jump": {
+   "planted": "2020-07, -6.0 cm",
+   "found": "2020-07, -6.0 cm",
+   "significant": true
+  }
+ },
+ "monte_carlo": {
+  "false_alarm_rate": {
+   "phi=0.0": {
+    "naive Mann-Kendall": 0.0,
+    "seasonal MK (no correction)": 0.052,
+    "pymannkendall correlated seasonal": 0.025,
+    "TerraPulse (Hirsch-Slack, gap-tolerant)": 0.05
+   },
+   "phi=0.5": {
+    "naive Mann-Kendall": 0.038,
+    "seasonal MK (no correction)": 0.208,
+    "pymannkendall correlated seasonal": 0.023,
+    "TerraPulse (Hirsch-Slack, gap-tolerant)": 0.052
+   },
+   "phi=0.8": {
+    "naive Mann-Kendall": 0.185,
+    "seasonal MK (no correction)": 0.475,
+    "pymannkendall correlated seasonal": 0.035,
+    "TerraPulse (Hirsch-Slack, gap-tolerant)": 0.088
+   }
+  },
+  "power": {
+   "trend 0.3 SD/decade, phi=0.5": {
+    "naive Mann-Kendall": 0.41,
+    "seasonal MK (no correction)": 0.688,
+    "pymannkendall correlated seasonal": 0.088,
+    "TerraPulse (Hirsch-Slack, gap-tolerant)": 0.42
+   }
+  },
+  "pymannkendall_correlated_could_not_run": {
+   "phi=0.0": 0.01,
+   "phi=0.5": 0.005,
+   "phi=0.8": 0.0
+  },
+  "change_point_false_jump_rate_no_trend": 0.005,
+  "change_point": {
+   "false_jump_rate_on_smooth_trend": 0.0,
+   "detection_rate_jump_1.5SD": 0.435,
+   "median_found_date_error_months": 2.0000000000009095
+  }
+ },
+ "n_simulations": 400
+}

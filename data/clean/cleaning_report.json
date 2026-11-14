@@ -1,0 +1,100 @@
+[
+ {
+  "variable": "ndvi",
+  "source": "NASA MODIS Terra MOD13A3 v061 via AppEEARS",
+  "removed_spikes": 5980,
+  "frequency": "monthly",
+  "record_years": 25.7,
+  "record_start": "2001-01-01",
+  "record_end": "2026-10-01",
+  "pixels_total": 2520,
+  "pixels_flagged_too_many_gaps": 273,
+  "final_missing_fraction": 0.115,
+  "raw_values": 28313230,
+  "removed_fill_or_missing": 3405346,
+  "removed_out_of_range": 0,
+  "removed_quality_flag": 67563
+ },
+ {
+  "variable": "lst",
+  "source": "NASA MODIS Terra MOD11A2 v061 via AppEEARS",
+  "months_dropped_too_few_observations": 2416,
+  "removed_after_cutoff": 129080,
+  "cutoff": "2021-12",
+  "cutoff_reason": "Terra stopped orbit corrections in Feb 2020 and now passes earlier in the morning, so daytime LST reads cooler every year (about -0.4 \u00b0C in 2022 growing to -6 \u00b0C in 2026 over the Delta). Data after 2021 would show a fake cooling trend, so it is cut.",
+  "removed_spikes": 18,
+  "frequency": "monthly",
+  "record_years": 20.9,
+  "record_start": "2001-01-01",
+  "record_end": "2021-12-01",
+  "pixels_total": 2520,
+  "pixels_flagged_too_many_gaps": 294,
+  "final_missing_fraction": 0.12,
+  "raw_values": 108412271,
+  "removed_fill_or_missing": 14239838,
+  "removed_out_of_range": 15,
+  "removed_quality_flag": 0
+ },
+ {
+  "variable": "precip",
+  "source": "NASA GPM IMERG Final monthly v07 via Giovanni",
+  "removed_spikes": 0,
+  "frequency": "monthly",
+  "record_years": 27.7,
+  "record_start": "1998-01-01",
+  "record_end": "2025-09-01",
+  "pixels_total": 3,
+  "pixels_flagged_too_many_gaps": 0,
+  "final_missing_fraction": 0.0,
+  "regions": [
+   "nile_delta",
+   "north_coast",
+   "amazon"
+  ],
+  "raw_values": 999,
+  "removed_fill_or_missing": 0,
+  "removed_out_of_range": 0,
+  "removed_quality_flag": 0
+ },
+ {
+  "variable": "no2",
+  "source": "NASA Aura OMI OMNO2d v004 via Giovanni",
+  "removed_spikes": 2,
+  "frequency": "monthly",
+  "record_years": 22.0,
+  "record_start": "2004-10-01",
+  "record_end": "2026-10-01",
+  "pixels_total": 2,
+  "pixels_flagged_too_many_gaps": 0,
+  "final_missing_fraction": 0.008,
+  "regions": [
+   "greater_cairo",
+   "nile_delta"
+  ],
+  "raw_values": 530,
+  "removed_fill_or_missing": 2,
+  "removed_out_of_range": 0,
+  "removed_quality_flag": 0,
+  "months_dropped_too_few_days": 2
+ },
+ {
+  "variable": "station_temp",
+  "source": "NOAA GHCN-Daily, Alexandria International (EGM00062318)",
+  "removed_spikes": 0,
+  "frequency": "monthly",
+  "record_years": 23.5,
+  "record_start": "2000-01-01",
+  "record_end": "2023-07-01",
+  "pixels_total": 1,
+  "pixels_flagged_too_many_gaps": 0,
+  "final_missing_fraction": 0.004,
+  "regions": [
+   "alexandria"
+  ],
+  "raw_values": 284,
+  "removed_fill_or_missing": 1,
+  "removed_out_of_range": 0,
+  "removed_quality_flag": 0,
+  "months_dropped_too_few_days": 1
+ }
+]

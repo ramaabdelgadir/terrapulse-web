@@ -1,0 +1,8 @@
+fastapi>=0.110
+numpy>=1.26
+pandas>=2.1
+xarray>=2024.1
+scipy>=1.11
+netCDF4>=1.6
+pymannkendall>=1.4.3
+python-dotenv>=1.0
